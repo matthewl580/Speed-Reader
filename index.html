@@ -5,14 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="dark light">
     <title>Speed Reader RSVP</title>
+    <!-- STABLE pdf.js v2.16.105 legacy build - global pdfjsLib -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <!-- Set worker for stable version -->
+    <script>
+      // Wait for pdf.js to load
+      function waitForPdfJs() {
+        if (typeof pdfjsLib !== 'undefined') {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+          console.log('PDF.js v2.16.105 worker configured');
+          // Load parser now
+          const parserScript = document.createElement('script');
+          parserScript.src = 'parser.js';
+          document.head.appendChild(parserScript);
+        } else {
+          setTimeout(waitForPdfJs, 50);
+        }
+      }
+      waitForPdfJs();
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     
     <!-- Google Fonts & Material Symbols -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght@400;500&amp;family=Roboto:wght@400;500;700&amp;display=swap" />
     
-    <!-- Material Web Components (MD3) -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@material/web@1/+esm"></script>
-    
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -24,27 +41,30 @@
         <button id="settings-btn" class="control-btn settings-btn" title="Settings">
             <span class="material-symbols-rounded">settings</span>
         </button>
-        <input type="file" id="fileInput" accept=".pdf">
-        <p id="status">Upload PDF to start</p>
+        <label for="fileInput" class="file-upload-label" title="Upload PDF">
+            <span class="material-symbols-rounded">upload_file</span>
+            <span>Upload PDF</span>
+        </label>
+        <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+        <p id="status">Click Upload PDF to start</p>
     </header>
     <main>
-        <!-- Material Overlay Drawer for Chapters -->
+        <!-- Chapters Drawer -->
         <nav id="drawer-menu" class="drawer-overlay">
             <div class="drawer-header">
                 <span class="material-symbols-rounded">menu_book</span>
                 Chapters
             </div>
             <ul id="chapter-list" class="chapter-list">
-                <!-- Dynamic chapters -->
             </ul>
         </nav>
         <div id="drawer-scrim" class="drawer-scrim"></div>
 
+        <!-- RSVP Section -->
         <section class="rsvp-container">
             <div id="rsvp-display">Upload a PDF to start reading</div>
             
             <div class="controls">
-                <!-- Top Row: Navigation -->
                 <div class="control-row top-row">
                     <button id="prev-10" class="control-btn scrub-btn" title="Back 10 words">
                       <span class="material-symbols-rounded">arrow_back</span>
@@ -63,7 +83,6 @@
                     </button>
                 </div>
                 
-                <!-- Bottom Row: Info & Progress -->
                 <div class="control-row bottom-row">
                     <span id="wpm-display" class="info-display">300 WPM</span>
                     <span id="chapter-eta" class="info-display">Ch: --</span>
@@ -79,90 +98,103 @@
         </section>
     </main>
 
-    <!-- Material Design 3 Settings Drawer -->
-    <nav id="settings-drawer" class="md3-drawer">
-        <div class="md3-drawer-header">
+    <!-- FIXED Settings Drawer - Native Controls -->
+    <nav id="settings-drawer" class="settings-drawer">
+        <div class="settings-header">
             <span class="material-symbols-rounded">tune</span>
             <h2>Settings</h2>
         </div>
         
-        <div class="md3-settings-content">
+        <div class="settings-content">
             <!-- Playback Section -->
-            <section class="md3-section">
+            <section class="settings-section">
                 <h3>Playback</h3>
-                <div class="md3-field">
-                    <label for="wpm-slider-md">Words per minute</label>
-                    <div class="md3-slider-container">
-                        <md-slider id="wpm-slider-md" min="100" max="1000" value="300" step="50" ticks></md-slider>
-                        <span id="wpm-display-settings" class="md3-value">300 WPM</span>
+                <div class="settings-field">
+                    <label for="wpm-slider">Words per minute</label>
+                    <div class="slider-container">
+                        <input type="range" id="wpm-slider" min="100" max="1000" value="300" step="50">
+                        <span id="wpm-display-settings">300 WPM</span>
                     </div>
                 </div>
                 
-                <div class="md3-field">
-                    <div class="md3-switch-container">
-                        <md-switch id="adaptive-toggle-md"></md-switch>
-                        <label for="adaptive-toggle-md">Adaptive timing</label>
-                    </div>
+                <div class="settings-field">
+                    <label class="switch-container">
+                        <input type="checkbox" id="adaptive-toggle">
+                        <span class="switch-slider"></span>
+                        Adaptive timing
+                    </label>
                 </div>
             </section>
 
             <!-- Appearance Section -->
-            <section class="md3-section">
+            <section class="settings-section">
                 <h3>Appearance</h3>
                 
-                <div class="md3-field">
-                    <label for="text-color">Text color</label>
-                    <md-filled-tonal-button id="text-color-btn">
-                        <span class="material-symbols-rounded">color_lens</span>
-                        <span id="text-color-preview">#f0f0f0</span>
-                    </md-filled-tonal-button>
-                    <input type="color" id="text-color" value="#f0f0f0" class="md3-color-picker" style="display: none;">
+                <div class="settings-field">
+                    <label>Text color</label>
+                    <div class="color-row">
+                        <button id="text-color-btn" class="color-btn">
+                            <span class="material-symbols-rounded">color_lens</span>
+                            <span id="text-color-preview">#f0f0f0</span>
+                        </button>
+                        <input type="color" id="text-color" value="#f0f0f0">
+                    </div>
                 </div>
 
-                <div class="md3-field">
-                    <label for="focus-color">RSVP focus color</label>
-                    <md-filled-tonal-button id="focus-color-btn">
-                        <span class="material-symbols-rounded">visibility</span>
-                        <span id="focus-color-preview">#ff4444</span>
-                    </md-filled-tonal-button>
-                    <input type="color" id="focus-color" value="#ff4444" class="md3-color-picker" style="display: none;">
+                <div class="settings-field">
+                    <label>Focus color</label>
+                    <div class="color-row">
+                        <button id="focus-color-btn" class="color-btn">
+                            <span class="material-symbols-rounded">visibility</span>
+                            <span id="focus-color-preview">#ff4444</span>
+                        </button>
+                        <input type="color" id="focus-color" value="#ff4444">
+                    </div>
                 </div>
 
-                <div class="md3-field">
-                    <label for="marker-color">RSVP marker color</label>
-                    <md-filled-tonal-button id="marker-color-btn">
-                        <span class="material-symbols-rounded">straighten</span>
-                        <span id="marker-color-preview">#4caf50</span>
-                    </md-filled-tonal-button>
-                    <input type="color" id="marker-color" value="#4caf50" class="md3-color-picker" style="display: none;">
+                <div class="settings-field">
+                    <label>Marker color</label>
+                    <div class="color-row">
+                        <button id="marker-color-btn" class="color-btn">
+                            <span class="material-symbols-rounded">straighten</span>
+                            <span id="marker-color-preview">#4caf50</span>
+                        </button>
+                        <input type="color" id="marker-color" value="#4caf50">
+                    </div>
                 </div>
 
-                <div class="md3-field">
-                    <label for="bg-color">Background color</label>
-                    <md-filled-tonal-button id="bg-color-btn">
-                        <span class="material-symbols-rounded">format_paint</span>
-                        <span id="bg-color-preview">#0a0a0a</span>
-                    </md-filled-tonal-button>
-                    <input type="color" id="bg-color" value="#0a0a0a" class="md3-color-picker" style="display: none;">
+                <div class="settings-field">
+                    <label>Background color</label>
+                    <div class="color-row">
+                        <button id="bg-color-btn" class="color-btn">
+                            <span class="material-symbols-rounded">format_paint</span>
+                            <span id="bg-color-preview">#0a0a0a</span>
+                        </button>
+                        <input type="color" id="bg-color" value="#0a0a0a">
+                    </div>
                 </div>
 
-                <div class="md3-field">
+                <!-- Font Size Buttons -->
+                <div class="settings-field">
                     <label>Text size</label>
-                    <div class="md3-segmented-button-set">
-                        <md-segmented-button-set>
-                            <md-segmented-button id="font-small" value="small" data-size="2">S</md-segmented-button>
-                            <md-segmented-button id="font-medium" value="medium" data-size="4" selected>L</md-segmented-button>
-                            <md-segmented-button id="font-large" value="large" data-size="6">L</md-segmented-button>
-                        </md-segmented-button-set>
+                    <div class="font-buttons">
+                        <button id="font-small" class="font-btn">S</button>
+                        <button id="font-medium" class="font-btn active">M</button>
+                        <button id="font-large" class="font-btn">L</button>
                     </div>
                 </div>
             </section>
 
             <!-- Actions -->
-            <div class="md3-actions">
-                <md-text-button id="reset-settings">Reset defaults</md-text-button>
-                <md-filled-button id="close-settings">Close</md-filled-button>
+            <div class="settings-actions">
+                <button id="reset-settings" class="btn-secondary">Reset defaults</button>
+                <button id="close-settings" class="btn-primary">Close</button>
             </div>
         </div>
     </nav>
     <div id="settings-scrim" class="drawer-scrim"></div>
+
+    <!-- App logic -->
+    <script src="script.js"></script>
+</body>
+</html>

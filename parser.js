@@ -1,76 +1,88 @@
-import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.269/pdf.min.mjs';
+// FIXED PDF Parser - Better Chapter Detection + Display Names
 
-// Initialize Worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.269/pdf.worker.min.mjs';
-
-/**
- * The main parsing function exported to your app
- */
-export async function parsePDF(file) {
-    const arrayBuffer = await file.arrayBuffer();
-    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-    const pdf = await loadingTask.promise;
+(function() {
+  console.log('PDF Parser loading...');
+  
+  window.parsePDF = async (file, onProgress = null) => {
+    if (typeof pdfjsLib === 'undefined') throw new Error('pdf.js missing');
     
-    let structuredDoc = {
-        fileName: file.name,
-        chapters: [] 
-    };
+    try {
+      if (!file || file.type !== 'application/pdf') throw new Error('Invalid PDF');
+      if (file.size > 50 * 1024 * 1024) throw new Error('PDF too large');
 
-    let currentChapterIdx = -1;
+      onProgress?.('Reading file...');
+      const arrayBuffer = await file.arrayBuffer();
+      
+      onProgress?.('Loading PDF...');
+      const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+      
+      const chapters = [];
+      let pageContent = '';
+      let currentTitle = 'Document';
+      
+      onProgress?.(`Parsing ${pdf.numPages} pages...`);
 
-    for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        onProgress?.(`Page ${pageNum}/${pdf.numPages}`);
         
-        // If no text items, it's a scanned image - use OCR
-        if (textContent.items.length === 0) {
-            const ocrText = await performOCR(page);
-            currentChapterIdx = appendToDoc(structuredDoc, ocrText, i, currentChapterIdx, true);
-        } else {
-            // Process native text
-            textContent.items.forEach(item => {
-                const fontSize = item.transform[0];
-                const text = item.str.trim();
-                if (!text) return;
-
-                // Simple Header Detection: Large font or "Chapter" keywords
-                const isTitle = fontSize > 16 || /^(chapter|section|article|part)\s+\d+/i.test(text);
-                
-                if (isTitle) {
-                    structuredDoc.chapters.push({ title: text, content: "", page: i });
-                    currentChapterIdx++;
-                } else {
-                    currentChapterIdx = appendToDoc(structuredDoc, text, i, currentChapterIdx, false);
-                }
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str.trim()).join(' ').trim();
+        
+        pageContent += ' ' + pageText;
+        
+        // Chapter detection - look for common patterns
+        const chapterMatch = pageText.match(/(Chapter|CHAPTER|chapter)\s+(\w+|[\d Roman]+)/i) ||
+                           pageText.match(/(Section|SECTION|section)\s+(\w+|[\d Roman]+)/i) ||
+                           pageText.match(/^([IVXLC]+\.?\s+[\w\s]+|Part\s+\w+)/i) ||
+                           pageText.match(/^\d+\.\s+[\w\s]+/);
+        
+        if (chapterMatch) {
+          // Save previous chapter
+          if (pageContent.trim().length > 100) {
+            chapters.push({
+              title: currentTitle,
+              content: pageContent.trim()
             });
+          }
+          
+          // New chapter
+          currentTitle = chapterMatch[0];
+          pageContent = pageText;
+          
+          console.log(`Found chapter: ${currentTitle}`);
         }
+      }
+      
+      // Final chapter
+      if (pageContent.trim().length > 100) {
+        chapters.push({
+          title: currentTitle,
+          content: pageContent.trim()
+        });
+      }
+      
+      // Fallback if no chapters found
+      if (chapters.length === 0) {
+        chapters.push({
+          title: 'Document',
+          content: pageContent.trim()
+        });
+      }
+
+      onProgress?.(`Success! ${chapters.length} chapters parsed`);
+      
+      return {
+        fileName: file.name,
+        chapters
+      };
+      
+    } catch (error) {
+      console.error('PDF parse failed:', error);
+      throw new Error(error.message || 'Parse failed');
     }
-    return structuredDoc;
-}
+  };
+  
+  console.log('PDF Parser ready');
+})();
 
-async function performOCR(page) {
-    const viewport = page.getViewport({ scale: 2.0 });
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-
-    await page.render({ canvasContext: ctx, viewport }).promise;
-    
-    // Tesseract is global from the CDN script tag in HTML
-    const result = await Tesseract.recognize(canvas, 'eng');
-    return result.data.text;
-}
-
-function appendToDoc(doc, text, pageNum, idx, isOCR) {
-    let activeIdx = idx;
-    // If we haven't found a chapter title yet, create a default one
-    if (activeIdx === -1) {
-        const title = isOCR ? `Scanned Page ${pageNum}` : "Introduction";
-        doc.chapters.push({ title: title, content: text, page: pageNum });
-        activeIdx = 0;
-    } else {
-        doc.chapters[activeIdx].content += " " + text;
-    }
-    return activeIdx;
-}
