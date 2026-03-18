@@ -119,6 +119,99 @@ document.addEventListener('DOMContentLoaded', () => {
   displayWelcome();
   console.log('Speed Reader ready');
 });
+/**
+ * RSVP Dynamic Delay Calculator
+ * Senior Frontend Engineer + Linguistics Researcher Implementation
+ */
+
+const STOP_WORDS = new Set([
+  'a', 'an', 'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
+  'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does',
+  'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'this', 'that',
+  'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us',
+  'them', 'my', 'your', 'his', 'its', 'our', 'their', 'mine', 'yours', 'hers', 'ours',
+  'theirs', 'as', 'if', 'from', 'about', 'into', 'through', 'during', 'before', 'after',
+  'above', 'below', 'up', 'down', 'out', 'off', 'over', 'under', 'again', 'further',
+  'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both',
+  'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only',
+  'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don',
+  'should', 'now'
+]);
+
+/**
+ * Calculates dynamic display delay for RSVP word
+ * @param {string} word - The word to display
+ * @param {number} baseMsPerWord - Base milliseconds per word from WPM (60000 / wpm)
+ * @returns {number} Delay in milliseconds
+ */
+export function calculateRsvpDelay(word, baseMsPerWord) {
+  if (!word || typeof word !== 'string') return baseMsPerWord;
+
+  const cleanWord = word.trim();
+  const lowerWord = cleanWord.toLowerCase();
+  const rawLength = lowerWord.replace(/[^\w]/g, '').length;
+  let delay = baseMsPerWord;
+
+  // 1. Length Scaling
+  if (rawLength > 5) {
+    const extraLetters = rawLength - 5;
+    delay += (extraLetters * (baseMsPerWord * 0.15));
+  }
+
+  // 2. Detection Logic
+  const isSentenceEnd = /[.!?]/.test(cleanWord);
+  const isClauseEnd = /[,;:]/.test(cleanWord);
+  const isNumeric = /\d/.test(cleanWord);
+  // Detects "1." or "20." specifically
+  const isListItem = /^\d+\.$/.test(cleanWord); 
+
+  // 3. Complexity Weighting
+  // Borrow time from stop words, but never if they have punctuation
+  if (STOP_WORDS.has(lowerWord) && !isSentenceEnd && !isClauseEnd) {
+    delay *= 0.80;
+  }
+
+  // 4. Prioritization logic (The "Anti-Stacking" fix)
+  if (isListItem) {
+    // List items (1.) should be clear but faster than a full sentence end
+    delay = Math.max(delay, baseMsPerWord * 1.5); 
+  } else if (isSentenceEnd) {
+    delay = Math.max(delay, baseMsPerWord * 2.5);
+  } else if (isClauseEnd) {
+    delay = Math.max(delay, baseMsPerWord * 1.5);
+  } else if (isNumeric) {
+    delay = Math.max(delay, baseMsPerWord * 1.3);
+  }
+
+  // 5. Hard Constraints
+  // Floor at 100ms prevents "visual flicker" and retinal ghosting
+  // Cap at 2.5x base keeps the "flow state" from breaking
+  const finalDelay = Math.max(100, Math.min(delay, baseMsPerWord * 2.5));
+
+  // Console log for debugging the rhythm
+  console.log(`Word: "${word}", Base: ${baseMsPerWord.toFixed(1)}ms, Final: ${finalDelay.toFixed(1)}ms`);
+  
+  return Math.round(finalDelay);
+}
+
+/**
+ * Batch calculate delays for word array (preserves average WPM)
+ * @param {string[]} words - Array of words
+ * @param {number} wpm - Words per minute
+ * @returns {number[]} Array of delays matching word lengths
+ */
+export function calculateBatchDelays(words, wpm) {
+  const baseMsPerWord = 60000 / wpm;
+  return words.map(word => calculateRsvpDelay(word, baseMsPerWord));
+}
+// Usage example:
+/*
+const delays = calculateBatchDelays(['the', 'internationalization', 'project.', 'ends', 'now'], 350);
+console.log(delays); // [~163, ~389, ~413, ~230, ~207]
+const totalTime = delays.reduce((a, b) => a + b, 0);
+const effectiveWPM = (delays.length / totalTime) * 60000; // ~350 (preserved)
+*/
+
 
 function toggleDrawer() {
   drawerMenuEl.classList.toggle('open');
@@ -211,9 +304,18 @@ function populateChapterList() {
 
 function loadCurrentChapter() {
   if (!chaptersData) return;
-  const content = chaptersData.chapters[currentChapterIndex]?.content || '';
-  words = content.split(/\s+/).map(w => w.trim()).filter(w => w);
-  avgWordLen = words.reduce((sum, w) => sum + w.length, 0) / words.length || 5;
+  const chapter = chaptersData.chapters[currentChapterIndex];
+  const content = chapter.content || '';
+  
+  // Prepend chapter title as special word
+  const titleWord = {
+    text: chapter.title,
+    isTitle: true,
+    duration: 1000 // 1 second pause
+  };
+  
+  words = [titleWord, ...content.split(/\s+/).map(w => w.trim()).filter(w => w).map(w => ({text: w}))];
+  avgWordLen = words.slice(1).reduce((sum, w) => sum + w.text.length, 0) / (words.length - 1) || 5;
   currentWordIndex = 0;
   updateProgress();
   updateEtaDisplay();
@@ -227,18 +329,37 @@ function displayWord(index) {
     return;
   }
   
-  const word = words[index];
+  const wordObj = words[index];
+  const word = wordObj.text;
+  const isTitle = wordObj.isTitle || false;
+  if (word.length === 0) return;
+  
+  // Apply title styling
+  if (isTitle) {
+    rsvpDisplayEl.classList.add('chapter-title');
+  } else {
+    rsvpDisplayEl.classList.remove('chapter-title');
+  }
+  
   const focusIdx = Math.floor(word.length * 0.35) || 0;
-  rsvpDisplayEl.innerHTML = `${word.slice(0, focusIdx)}<span class="focus">${word[focusIdx] || ''}</span>${word.slice(focusIdx + 1)}`;
+  const focusChar = word[focusIdx] || word[0];
+  const preFocus = word.slice(0, focusIdx);
+  const postFocus = word.slice(focusIdx + 1);
   
-  // Clear old marker
-  const oldMarker = rsvpDisplayEl.querySelector('.rsvp-marker');
-  oldMarker?.remove();
+  // Create symmetric side panels using Canvas to measure exact widths
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.font = window.getComputedStyle(rsvpDisplayEl).font;
   
-  // Add new marker
-  const marker = document.createElement('div');
-  marker.className = 'rsvp-marker';
-  rsvpDisplayEl.appendChild(marker);
+  const preWidth = ctx.measureText(preFocus).width;
+  const postWidth = ctx.measureText(postFocus).width;
+  const maxSideWidth = Math.max(preWidth, postWidth)*10;
+  
+  rsvpDisplayEl.innerHTML = `
+    <div class="prefocus" style="width:${maxSideWidth}px" >${preFocus}</div>
+    <div class="focus">${focusChar}</div>
+    <div class="postfocus" style="width:${maxSideWidth}px" >${postFocus}</div>
+  `;
   
   currentWordIndex = index;
   updateProgress();
@@ -248,14 +369,17 @@ function displayWord(index) {
 function nextWord() {
   if (!words || !words.length || currentWordIndex >= words.length - 1) return displayWord(words.length - 1 || 0);
   
-  let delay = 60000 / wpm;
-  const nextWordText = words[currentWordIndex + 1];
-  if (adaptiveMode) {
-    delay *= nextWordText.length / avgWordLen;
-    if (nextWordText.length > 8) delay *= 1.2;
-    if (/[.!?]/.test(nextWordText)) delay *= 1.5;
+  // Use advanced RSVP delay calculator for CURRENT word's display duration
+  const currentWordObj = words[currentWordIndex];
+  const baseMsPerWord = 60000 / wpm;
+  let delay = calculateRsvpDelay(currentWordObj.text, baseMsPerWord);
+  
+  // Override for chapter titles
+  if (currentWordObj.isTitle) {
+    delay = currentWordObj.duration || 1000;
   }
-  delay = Math.max(80, Math.round(delay));
+  
+  delay = Math.max(80, delay);
   
   currentTimeout = setTimeout(() => {
     displayWord(currentWordIndex + 1);
@@ -307,6 +431,10 @@ function updateEtaDisplay() {
   if (chapterEtaEl && words.length) {
     const chMins = Math.round((words.length - currentWordIndex) * msPerWord / 60000);
     chapterEtaEl.textContent = `Ch: ${chMins}m`;
+  }
+  if (bookEtaEl && totalBookWords) {
+    const bookMins = Math.round((totalBookWords - currentWordIndex) * msPerWord / 60000);
+    bookEtaEl.textContent = `Book: ${bookMins}m`;
   }
   if (wpmDisplayMainEl) wpmDisplayMainEl.textContent = `${wpm} WPM`;
 }

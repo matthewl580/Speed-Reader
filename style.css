@@ -1,5 +1,5 @@
 /* Modern Dark RSVP Speed Reader - FIXED Native Settings */
-
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 * {
   box-sizing: border-box;
 }
@@ -14,7 +14,8 @@
   --text-secondary: #b0b0b0;
   --accent-red: #ff4444;
   --accent-green: #4caf50;
-  --accent-orange: #ff9800;
+--accent-orange: #ff9800;
+  --chapter-title-color: #ff9800;
   --ios-blue: #007AFF;
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
   --radius: 16px;
@@ -35,8 +36,9 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
-  background: var(--bg-color);
+font-family: "Atkinson Hyperlegible", sans-serif;
+  font-weight: 700;
+  font-style: normal;  background: var(--bg-color);
   color: var(--text-color);
   height: 100vh;
   overflow: hidden;
@@ -113,23 +115,86 @@ main {
   font-size: clamp(3rem, 10vw, 7rem);
   font-weight: 500;
   line-height: 1.1;
-  text-align: center;
   min-height: 140px;
-  max-width: 90%;
+  max-width: 90vw;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              text-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   letter-spacing: -0.02em;
+  font-kerning: none;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   color: var(--text-color);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+
+
+#rsvp-display::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 20px;
+  background: var(--marker-color);
+  border-radius: 2px;
+  box-shadow: 0 0 10px var(--marker-color);
+}
+
+#rsvp-display {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.focus-point {
+  position: absolute;
+  left: 50vw;
+  top: 50vh;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+}
+
+.word-parts {
+  position: absolute;
+  left: 50vw;
+  top: 50vh;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+.prefocus {
+  text-align: end;
+}
+.prefocus, .postfocus {
+  font-weight: 400;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 1;
 }
 
 .focus {
   color: var(--focus-color);
   font-weight: 700;
-  text-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+  text-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+}
+
+#rsvp-display.chapter-title .prefocus,
+#rsvp-display.chapter-title .focus,
+#rsvp-display.chapter-title .postfocus {
+  color: var(--chapter-title-color) !important;
 }
 
 .rsvp-marker {
