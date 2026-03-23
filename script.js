@@ -6,7 +6,7 @@ let currentChapterIndex = 0;
 let words = [];
 let currentWordIndex = 0;
 let isPlaying = false;
-let wpm = 300;
+let wpm = 500;
 let adaptiveMode = false;
 let avgWordLen = 5;
 let totalBookWords = 0;
@@ -44,7 +44,7 @@ let wpmDisplayMainEl,
   next10BtnEl,
   settingsBtnEl;
 let settingsDrawerEl, settingsScrimEl;
-let wpmSlider, wpmDisplaySettings, adaptiveToggle;
+let wpmDecreaseBtn, wpmIncreaseBtn, wpmDisplaySettings, adaptiveToggle;
 let textColorInput, textColorBtn, textColorPreview;
 let focusColorInput, focusColorBtn, focusColorPreview;
 let markerColorInput, markerColorBtn, markerColorPreview;
@@ -82,7 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Settings elements - NATIVE
   settingsDrawerEl = document.getElementById("settings-drawer");
   settingsScrimEl = document.getElementById("settings-scrim");
-  wpmSlider = document.getElementById("wpm-slider");
+  wpmDecreaseBtn = document.getElementById("wpm-decrease");
+  wpmIncreaseBtn = document.getElementById("wpm-increase");
   wpmDisplaySettings = document.getElementById("wpm-display-settings");
   adaptiveToggle = document.getElementById("adaptive-toggle");
   textColorInput = document.getElementById("text-color");
@@ -125,11 +126,17 @@ document.addEventListener("DOMContentLoaded", () => {
   if (prev10BtnEl) prev10BtnEl.addEventListener("click", () => scrubWords(-10));
   if (next10BtnEl) next10BtnEl.addEventListener("click", () => scrubWords(10));
 
-  // FIXED Settings listeners
-  if (wpmSlider)
-    wpmSlider.addEventListener("input", (e) =>
-      onWpmChange(parseInt(e.target.value)),
-    );
+  // WPM buttons
+  if (wpmDecreaseBtn)
+    wpmDecreaseBtn.addEventListener("click", () => {
+      wpm = Math.max(100, wpm - 25);
+      onWpmChange(wpm);
+    });
+  if (wpmIncreaseBtn)
+    wpmIncreaseBtn.addEventListener("click", () => {
+      wpm = Math.min(1000, wpm + 25);
+      onWpmChange(wpm);
+    });
   if (adaptiveToggle)
     adaptiveToggle.addEventListener(
       "change",
@@ -387,8 +394,8 @@ function toggleSettingsDrawer() {
 }
 
 function syncSettingsUI() {
-  if (wpmSlider) wpmSlider.value = wpm;
-  if (wpmDisplaySettings) wpmDisplaySettings.textContent = `${wpm} WPM`;
+  if (wpmDisplaySettings) wpmDisplaySettings.innerHTML = `${wpm}<br>WPM`;
+
   if (adaptiveToggle) adaptiveToggle.checked = adaptiveMode;
   if (textColorInput) textColorInput.value = textColor;
   if (textColorPreview) textColorPreview.textContent = textColor;
@@ -438,7 +445,7 @@ function handleFileInput(e) {
       (sum, ch) => sum + ch.content.split(/\s+/).filter(Boolean).length,
       0,
     );
-    wpmDisplayMainEl.textContent = `Ready! ${data.chapters.length} chapters`;
+    wpmDisplayMainEl.innerHTML = `Ready! ${data.chapters.length} chapters`;
     setTimeout(() => (wpmDisplayMainEl.textContent = `${wpm} WPM`), 2000);
     populateChapterList();
     loadCurrentChapter();
@@ -491,7 +498,7 @@ function handleTextInput() {
   };
 
   totalBookWords = text.split(/\s+/).filter(Boolean).length;
-  wpmDisplayMainEl.textContent = `Ready! 1 chapter (${totalBookWords} words)`;
+  wpmDisplayMainEl.innerHTML = `Ready! 1 chapter (${totalBookWords} words)`;
   setTimeout(() => (wpmDisplayMainEl.textContent = `${wpm} WPM`), 2000);
 
   populateChapterList();
@@ -709,7 +716,7 @@ function updateDisplays() {
 }
 
 function updateWpmDisplay() {
-  if (wpmDisplayMainEl) wpmDisplayMainEl.textContent = `${wpm} WPM`;
+  if (wpmDisplayMainEl) wpmDisplayMainEl.innerHTML = `WPM<br>${wpm}`;
 }
 
 function onWpmChange(value) {
@@ -781,7 +788,7 @@ function loadSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem("speedReaderSettings"));
     if (saved) {
-      wpm = saved.wpm || 300;
+      wpm = saved.wpm || 500;
       adaptiveMode = saved.adaptiveMode || false;
       fontSizeRem = saved.fontSizeRem || 4;
       textColor = saved.textColor || "#f0f0f0";
@@ -803,7 +810,7 @@ function loadSettings() {
 }
 
 function resetSettings() {
-  wpm = 300;
+  wpm = 500;
   adaptiveMode = false;
   fontSizeRem = 4;
   textColor = "#f0f0f0";
@@ -840,12 +847,10 @@ function onKeyDown(e) {
       break;
     case "ArrowUp":
       wpm = Math.min(1000, wpm + 50);
-      wpmSlider.value = wpm;
       onWpmChange(wpm);
       break;
     case "ArrowDown":
       wpm = Math.max(100, wpm - 50);
-      wpmSlider.value = wpm;
       onWpmChange(wpm);
       break;
   }
