@@ -14,14 +14,35 @@ let fontSizeRem = 4;
 let currentTimeout = null;
 
 // Color settings state
-let textColor = '#f0f0f0';
-let focusColor = '#ff4444';
-let markerColor = '#4caf50';
-let bgColor = '#0a0a0a';
+let textColor = "#f0f0f0";
+let focusColor = "#ff4444";
+let markerColor = "#4caf50";
+let bgColor = "#0a0a0a";
 
 // Elements
-let statusEl, fileInputEl, hamburgerBtnEl, drawerMenuEl, drawerScrimEl, chapterListEl, rsvpDisplayEl;
-let wpmDisplayMainEl, chapterEtaEl, bookEtaEl, chapterProgressEl, bookProgressEl, playBtnEl, pauseBtnEl, resetBtnEl, prev10BtnEl, next10BtnEl, settingsBtnEl;
+let fileInputEl,
+  hamburgerBtnEl,
+  drawerMenuEl,
+  drawerScrimEl,
+  chapterListEl,
+  rsvpDisplayEl;
+
+let welcomeMenuEl,
+  pasteTextBtnEl,
+  textInputSectionEl,
+  textInputEl,
+  startTextBtnEl;
+let wpmDisplayMainEl,
+  chapterEtaEl,
+  bookEtaEl,
+  chapterProgressEl,
+  bookProgressEl,
+  playBtnEl,
+  pauseBtnEl,
+  resetBtnEl,
+  prev10BtnEl,
+  next10BtnEl,
+  settingsBtnEl;
 let settingsDrawerEl, settingsScrimEl;
 let wpmSlider, wpmDisplaySettings, adaptiveToggle;
 let textColorInput, textColorBtn, textColorPreview;
@@ -31,93 +52,132 @@ let bgColorInput, bgColorBtn, bgColorPreview;
 let fontSmallBtn, fontMediumBtn, fontLargeBtn;
 let resetSettingsBtn, closeSettingsBtn;
 
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('Speed Reader init');
-  
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Speed Reader init");
+
   // Get elements
-  statusEl = document.getElementById('status');
-  fileInputEl = document.getElementById('fileInput');
-  hamburgerBtnEl = document.getElementById('hamburger-menu');
-  drawerMenuEl = document.getElementById('drawer-menu');
-  drawerScrimEl = document.getElementById('drawer-scrim');
-  chapterListEl = document.getElementById('chapter-list');
-  rsvpDisplayEl = document.getElementById('rsvp-display');
-  wpmDisplayMainEl = document.getElementById('wpm-display');
-  chapterEtaEl = document.getElementById('chapter-eta');
-  bookEtaEl = document.getElementById('book-eta');
-  chapterProgressEl = document.getElementById('chapter-progress');
-  bookProgressEl = document.getElementById('book-progress');
-  playBtnEl = document.getElementById('play-btn');
-  pauseBtnEl = document.getElementById('pause-btn');
-  resetBtnEl = document.getElementById('reset-btn');
-  prev10BtnEl = document.getElementById('prev-10');
-  next10BtnEl = document.getElementById('next-10');
-  settingsBtnEl = document.getElementById('settings-btn');
-  
+  // statusEl removed
+  fileInputEl = document.getElementById("fileInput");
+  drawerMenuEl = document.getElementById("drawer-menu");
+  drawerScrimEl = document.getElementById("drawer-scrim");
+  chapterListEl = document.getElementById("chapter-list");
+  rsvpDisplayEl = document.getElementById("rsvp-display");
+  welcomeMenuEl = document.getElementById("welcome-menu");
+  pasteTextBtnEl = document.getElementById("paste-text-btn");
+  textInputSectionEl = document.getElementById("text-input-section");
+  textInputEl = document.getElementById("text-input");
+  startTextBtnEl = document.getElementById("start-text-btn");
+  wpmDisplayMainEl = document.getElementById("wpm-display");
+  chapterEtaEl = document.getElementById("chapter-eta");
+  bookEtaEl = document.getElementById("book-eta");
+  chapterProgressEl = document.getElementById("chapter-progress");
+  bookProgressEl = document.getElementById("book-progress");
+  playBtnEl = document.getElementById("play-btn");
+  pauseBtnEl = document.getElementById("pause-btn");
+  resetBtnEl = document.getElementById("reset-btn");
+  prev10BtnEl = document.getElementById("prev-10");
+  next10BtnEl = document.getElementById("next-10");
+  settingsBtnEl = document.getElementById("settings-btn");
+
   // Settings elements - NATIVE
-  settingsDrawerEl = document.getElementById('settings-drawer');
-  settingsScrimEl = document.getElementById('settings-scrim');
-  wpmSlider = document.getElementById('wpm-slider');
-  wpmDisplaySettings = document.getElementById('wpm-display-settings');
-  adaptiveToggle = document.getElementById('adaptive-toggle');
-  textColorInput = document.getElementById('text-color');
-  textColorBtn = document.getElementById('text-color-btn');
-  textColorPreview = document.getElementById('text-color-preview');
-  focusColorInput = document.getElementById('focus-color');
-  focusColorBtn = document.getElementById('focus-color-btn');
-  focusColorPreview = document.getElementById('focus-color-preview');
-  markerColorInput = document.getElementById('marker-color');
-  markerColorBtn = document.getElementById('marker-color-btn');
-  markerColorPreview = document.getElementById('marker-color-preview');
-  bgColorInput = document.getElementById('bg-color');
-  bgColorBtn = document.getElementById('bg-color-btn');
-  bgColorPreview = document.getElementById('bg-color-preview');
-  fontSmallBtn = document.getElementById('font-small');
-  fontMediumBtn = document.getElementById('font-medium');
-  fontLargeBtn = document.getElementById('font-large');
-  resetSettingsBtn = document.getElementById('reset-settings');
-  closeSettingsBtn = document.getElementById('close-settings');
+  settingsDrawerEl = document.getElementById("settings-drawer");
+  settingsScrimEl = document.getElementById("settings-scrim");
+  wpmSlider = document.getElementById("wpm-slider");
+  wpmDisplaySettings = document.getElementById("wpm-display-settings");
+  adaptiveToggle = document.getElementById("adaptive-toggle");
+  textColorInput = document.getElementById("text-color");
+  textColorBtn = document.getElementById("text-color-btn");
+  textColorPreview = document.getElementById("text-color-preview");
+  focusColorInput = document.getElementById("focus-color");
+  focusColorBtn = document.getElementById("focus-color-btn");
+  focusColorPreview = document.getElementById("focus-color-preview");
+  markerColorInput = document.getElementById("marker-color");
+  markerColorBtn = document.getElementById("marker-color-btn");
+  markerColorPreview = document.getElementById("marker-color-preview");
+  bgColorInput = document.getElementById("bg-color");
+  bgColorBtn = document.getElementById("bg-color-btn");
+  bgColorPreview = document.getElementById("bg-color-preview");
+  fontSmallBtn = document.getElementById("font-small");
+  fontMediumBtn = document.getElementById("font-medium");
+  fontLargeBtn = document.getElementById("font-large");
+  resetSettingsBtn = document.getElementById("reset-settings");
+  closeSettingsBtn = document.getElementById("close-settings");
 
   // Safety checks
-  if (!rsvpDisplayEl || !playBtnEl) return console.error('Missing critical elements');
+  if (!rsvpDisplayEl || !playBtnEl)
+    return console.error("Missing critical elements");
 
   // Event listeners
-  if (settingsBtnEl) settingsBtnEl.addEventListener('click', toggleSettingsDrawer);
-  if (hamburgerBtnEl) hamburgerBtnEl.addEventListener('click', toggleDrawer);
-  if (drawerScrimEl) drawerScrimEl.addEventListener('click', closeDrawer);
-  if (settingsScrimEl) settingsScrimEl.addEventListener('click', closeSettingsDrawer);
-  if (fileInputEl) fileInputEl.addEventListener('change', handleFileInput);
-  if (playBtnEl) playBtnEl.addEventListener('click', play);
-  if (pauseBtnEl) pauseBtnEl.addEventListener('click', pause);
-  if (resetBtnEl) resetBtnEl.addEventListener('click', reset);
-  if (prev10BtnEl) prev10BtnEl.addEventListener('click', () => scrubWords(-10));
-  if (next10BtnEl) next10BtnEl.addEventListener('click', () => scrubWords(10));
+  if (settingsBtnEl)
+    settingsBtnEl.addEventListener("click", toggleSettingsDrawer);
+  /* Chapter bar always visible after load, no toggle */
+  if (settingsScrimEl)
+    settingsScrimEl.addEventListener("click", closeSettingsDrawer);
+  if (fileInputEl)
+    fileInputEl.addEventListener("change", () => {
+      handleFileInput(event);
+    });
+  if (pasteTextBtnEl) pasteTextBtnEl.addEventListener("click", toggleTextInput);
+  if (startTextBtnEl) startTextBtnEl.addEventListener("click", handleTextInput);
+  if (playBtnEl) playBtnEl.addEventListener("click", play);
+  if (pauseBtnEl) pauseBtnEl.addEventListener("click", pause);
+  if (resetBtnEl) resetBtnEl.addEventListener("click", reset);
+  if (prev10BtnEl) prev10BtnEl.addEventListener("click", () => scrubWords(-10));
+  if (next10BtnEl) next10BtnEl.addEventListener("click", () => scrubWords(10));
 
   // FIXED Settings listeners
-  if (wpmSlider) wpmSlider.addEventListener('input', (e) => onWpmChange(parseInt(e.target.value)));
-  if (adaptiveToggle) adaptiveToggle.addEventListener('change', (e) => adaptiveMode = e.target.checked);
-  if (textColorInput) textColorInput.addEventListener('change', (e) => updateColor('text', e.target.value));
-  if (focusColorInput) focusColorInput.addEventListener('change', (e) => updateColor('focus', e.target.value));
-  if (markerColorInput) markerColorInput.addEventListener('change', (e) => updateColor('marker', e.target.value));
-  if (bgColorInput) bgColorInput.addEventListener('change', (e) => updateColor('bg', e.target.value));
-  if (fontSmallBtn) fontSmallBtn.addEventListener('click', () => setFontSize(2));
-  if (fontMediumBtn) fontMediumBtn.addEventListener('click', () => setFontSize(4));
-  if (fontLargeBtn) fontLargeBtn.addEventListener('click', () => setFontSize(6));
-  if (resetSettingsBtn) resetSettingsBtn.addEventListener('click', resetSettings);
-  if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', closeSettingsDrawer);
-  
-  if (textColorBtn) textColorBtn.addEventListener('click', () => textColorInput.click());
-  if (focusColorBtn) focusColorBtn.addEventListener('click', () => focusColorInput.click());
-  if (markerColorBtn) markerColorBtn.addEventListener('click', () => markerColorInput.click());
-  if (bgColorBtn) bgColorBtn.addEventListener('click', () => bgColorInput.click());
+  if (wpmSlider)
+    wpmSlider.addEventListener("input", (e) =>
+      onWpmChange(parseInt(e.target.value)),
+    );
+  if (adaptiveToggle)
+    adaptiveToggle.addEventListener(
+      "change",
+      (e) => (adaptiveMode = e.target.checked),
+    );
+  if (textColorInput)
+    textColorInput.addEventListener("change", (e) =>
+      updateColor("text", e.target.value),
+    );
+  if (focusColorInput)
+    focusColorInput.addEventListener("change", (e) =>
+      updateColor("focus", e.target.value),
+    );
+  if (markerColorInput)
+    markerColorInput.addEventListener("change", (e) =>
+      updateColor("marker", e.target.value),
+    );
+  if (bgColorInput)
+    bgColorInput.addEventListener("change", (e) =>
+      updateColor("bg", e.target.value),
+    );
+  if (fontSmallBtn)
+    fontSmallBtn.addEventListener("click", () => setFontSize(2));
+  if (fontMediumBtn)
+    fontMediumBtn.addEventListener("click", () => setFontSize(4));
+  if (fontLargeBtn)
+    fontLargeBtn.addEventListener("click", () => setFontSize(6));
+  if (resetSettingsBtn)
+    resetSettingsBtn.addEventListener("click", resetSettings);
+  if (closeSettingsBtn)
+    closeSettingsBtn.addEventListener("click", closeSettingsDrawer);
 
-  document.addEventListener('keydown', onKeyDown);
+  if (textColorBtn)
+    textColorBtn.addEventListener("click", () => textColorInput.click());
+  if (focusColorBtn)
+    focusColorBtn.addEventListener("click", () => focusColorInput.click());
+  if (markerColorBtn)
+    markerColorBtn.addEventListener("click", () => markerColorInput.click());
+  if (bgColorBtn)
+    bgColorBtn.addEventListener("click", () => bgColorInput.click());
+
+  document.addEventListener("keydown", onKeyDown);
 
   // Init
   loadSettings();
   updateDisplays();
   displayWelcome();
-  console.log('Speed Reader ready');
+  console.log("Speed Reader ready");
 });
 /**
  * RSVP Dynamic Delay Calculator
@@ -125,17 +185,123 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 
 const STOP_WORDS = new Set([
-  'a', 'an', 'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
-  'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does',
-  'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'this', 'that',
-  'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us',
-  'them', 'my', 'your', 'his', 'its', 'our', 'their', 'mine', 'yours', 'hers', 'ours',
-  'theirs', 'as', 'if', 'from', 'about', 'into', 'through', 'during', 'before', 'after',
-  'above', 'below', 'up', 'down', 'out', 'off', 'over', 'under', 'again', 'further',
-  'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both',
-  'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only',
-  'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don',
-  'should', 'now'
+  "a",
+  "an",
+  "the",
+  "and",
+  "or",
+  "but",
+  "in",
+  "on",
+  "at",
+  "to",
+  "for",
+  "of",
+  "with",
+  "by",
+  "is",
+  "are",
+  "was",
+  "were",
+  "be",
+  "been",
+  "being",
+  "have",
+  "has",
+  "had",
+  "do",
+  "does",
+  "did",
+  "will",
+  "would",
+  "could",
+  "should",
+  "may",
+  "might",
+  "must",
+  "can",
+  "this",
+  "that",
+  "these",
+  "those",
+  "i",
+  "you",
+  "he",
+  "she",
+  "it",
+  "we",
+  "they",
+  "me",
+  "him",
+  "her",
+  "us",
+  "them",
+  "my",
+  "your",
+  "his",
+  "its",
+  "our",
+  "their",
+  "mine",
+  "yours",
+  "hers",
+  "ours",
+  "theirs",
+  "as",
+  "if",
+  "from",
+  "about",
+  "into",
+  "through",
+  "during",
+  "before",
+  "after",
+  "above",
+  "below",
+  "up",
+  "down",
+  "out",
+  "off",
+  "over",
+  "under",
+  "again",
+  "further",
+  "then",
+  "once",
+  "here",
+  "there",
+  "when",
+  "where",
+  "why",
+  "how",
+  "all",
+  "any",
+  "both",
+  "each",
+  "few",
+  "more",
+  "most",
+  "other",
+  "some",
+  "such",
+  "no",
+  "nor",
+  "not",
+  "only",
+  "own",
+  "same",
+  "so",
+  "than",
+  "too",
+  "very",
+  "s",
+  "t",
+  "can",
+  "will",
+  "just",
+  "don",
+  "should",
+  "now",
 ]);
 
 /**
@@ -145,17 +311,17 @@ const STOP_WORDS = new Set([
  * @returns {number} Delay in milliseconds
  */
 export function calculateRsvpDelay(word, baseMsPerWord) {
-  if (!word || typeof word !== 'string') return baseMsPerWord;
+  if (!word || typeof word !== "string") return baseMsPerWord;
 
   const cleanWord = word.trim();
   const lowerWord = cleanWord.toLowerCase();
-  const rawLength = lowerWord.replace(/[^\w]/g, '').length;
+  const rawLength = lowerWord.replace(/[^\w]/g, "").length;
   let delay = baseMsPerWord;
 
   // 1. Length Scaling
   if (rawLength > 5) {
     const extraLetters = rawLength - 5;
-    delay += (extraLetters * (baseMsPerWord * 0.15));
+    delay += extraLetters * (baseMsPerWord * 0.15);
   }
 
   // 2. Detection Logic
@@ -163,18 +329,18 @@ export function calculateRsvpDelay(word, baseMsPerWord) {
   const isClauseEnd = /[,;:]/.test(cleanWord);
   const isNumeric = /\d/.test(cleanWord);
   // Detects "1." or "20." specifically
-  const isListItem = /^\d+\.$/.test(cleanWord); 
+  const isListItem = /^\d+\.$/.test(cleanWord);
 
   // 3. Complexity Weighting
   // Borrow time from stop words, but never if they have punctuation
   if (STOP_WORDS.has(lowerWord) && !isSentenceEnd && !isClauseEnd) {
-    delay *= 0.80;
+    delay *= 0.8;
   }
 
   // 4. Prioritization logic (The "Anti-Stacking" fix)
   if (isListItem) {
     // List items (1.) should be clear but faster than a full sentence end
-    delay = Math.max(delay, baseMsPerWord * 1.5); 
+    delay = Math.max(delay, baseMsPerWord * 1.5);
   } else if (isSentenceEnd) {
     delay = Math.max(delay, baseMsPerWord * 2.5);
   } else if (isClauseEnd) {
@@ -189,8 +355,10 @@ export function calculateRsvpDelay(word, baseMsPerWord) {
   const finalDelay = Math.max(100, Math.min(delay, baseMsPerWord * 2.5));
 
   // Console log for debugging the rhythm
-  console.log(`Word: "${word}", Base: ${baseMsPerWord.toFixed(1)}ms, Final: ${finalDelay.toFixed(1)}ms`);
-  
+  console.log(
+    `Word: "${word}", Base: ${baseMsPerWord.toFixed(1)}ms, Final: ${finalDelay.toFixed(1)}ms`,
+  );
+
   return Math.round(finalDelay);
 }
 
@@ -202,7 +370,7 @@ export function calculateRsvpDelay(word, baseMsPerWord) {
  */
 export function calculateBatchDelays(words, wpm) {
   const baseMsPerWord = 60000 / wpm;
-  return words.map(word => calculateRsvpDelay(word, baseMsPerWord));
+  return words.map((word) => calculateRsvpDelay(word, baseMsPerWord));
 }
 // Usage example:
 /*
@@ -212,21 +380,10 @@ const totalTime = delays.reduce((a, b) => a + b, 0);
 const effectiveWPM = (delays.length / totalTime) * 60000; // ~350 (preserved)
 */
 
-
-function toggleDrawer() {
-  drawerMenuEl.classList.toggle('open');
-  drawerScrimEl.classList.toggle('open');
-}
-
-function closeDrawer() {
-  drawerMenuEl.classList.remove('open');
-  drawerScrimEl.classList.remove('open');
-}
-
 function toggleSettingsDrawer() {
-  settingsDrawerEl.classList.toggle('open');
-  settingsScrimEl.classList.toggle('open');
-  if (settingsDrawerEl.classList.contains('open')) syncSettingsUI();
+  settingsDrawerEl.classList.toggle("open");
+  settingsScrimEl.classList.toggle("open");
+  if (settingsDrawerEl.classList.contains("open")) syncSettingsUI();
 }
 
 function syncSettingsUI() {
@@ -241,81 +398,170 @@ function syncSettingsUI() {
   if (markerColorPreview) markerColorPreview.textContent = markerColor;
   if (bgColorInput) bgColorInput.value = bgColor;
   if (bgColorPreview) bgColorPreview.textContent = bgColor;
-  
+
   // Font buttons
-  [fontSmallBtn, fontMediumBtn, fontLargeBtn].forEach(btn => btn?.classList.remove('active'));
-  const activeFont = fontSizeRem === 2 ? fontSmallBtn : fontSizeRem === 4 ? fontMediumBtn : fontLargeBtn;
-  activeFont?.classList.add('active');
+  [fontSmallBtn, fontMediumBtn, fontLargeBtn].forEach((btn) =>
+    btn?.classList.remove("active"),
+  );
+  const activeFont =
+    fontSizeRem === 2
+      ? fontSmallBtn
+      : fontSizeRem === 4
+        ? fontMediumBtn
+        : fontLargeBtn;
+  activeFont?.classList.add("active");
 }
 
 function closeSettingsDrawer() {
-  settingsDrawerEl.classList.remove('open');
-  settingsScrimEl.classList.remove('open');
+  settingsDrawerEl.classList.remove("open");
+  settingsScrimEl.classList.remove("open");
 }
 
 function handleFileInput(e) {
   const file = e.target.files[0];
   if (!file) return;
-  
-  statusEl.textContent = `Loading ${file.name}...`;
-  
-  if (typeof window.parsePDF !== 'function') {
-    statusEl.textContent = 'PDF parser not ready - refresh';
+
+  hideWelcomeMenu();
+  console.log(`Loading ${file.name}...`);
+
+  if (typeof window.parsePDF !== "function") {
+    console.error("PDF parser not ready - refresh page");
     return;
   }
-  
+
   pause();
-  rsvpDisplayEl.textContent = '';
-  
-  window.parsePDF(file, msg => statusEl.textContent = msg)
-    .then(data => {
-      chaptersData = data;
-      totalBookWords = data.chapters.reduce((sum, ch) => sum + ch.content.split(/\s+/).filter(Boolean).length, 0);
-      statusEl.textContent = `Ready! ${data.chapters.length} chapters`;
-      populateChapterList();
-      loadCurrentChapter();
-      displayWord(0);
-      fileInputEl.value = '';
-    })
-    .catch(err => {
-      statusEl.textContent = `Error: ${err.message}`;
-      console.error(err);
-    });
+  rsvpDisplayEl.textContent = "";
+
+  window.parsePDF(file).then((data) => {
+    chaptersData = data;
+    totalBookWords = data.chapters.reduce(
+      (sum, ch) => sum + ch.content.split(/\s+/).filter(Boolean).length,
+      0,
+    );
+    wpmDisplayMainEl.textContent = `Ready! ${data.chapters.length} chapters`;
+    setTimeout(() => (wpmDisplayMainEl.textContent = `${wpm} WPM`), 2000);
+    populateChapterList();
+    loadCurrentChapter();
+    displayWord(0);
+    fileInputEl.value = "";
+  });
+}
+
+/**
+ * Toggle the text input section visibility.
+ */
+function toggleTextInput() {
+  /**
+   * Check if the text input section is hidden or not.
+   * If it is hidden, show it and focus the text input element.
+   * If it is not hidden, hide it.
+   */
+  if (
+    textInputSectionEl.style.display === "none" ||
+    !textInputSectionEl.style.display
+  ) {
+    // Show the text input section and focus the text input element.
+    textInputSectionEl.style.display = "block";
+    textInputEl.focus();
+  } else {
+    // Hide the text input section.
+    textInputSectionEl.style.display = "none";
+  }
+}
+
+function handleTextInput() {
+  const text = textInputEl.value.trim();
+  if (!text) {
+    rsvpDisplayEl.textContent = "Please enter some text";
+    setTimeout(() => (rsvpDisplayEl.textContent = ""), 2000);
+    return;
+  }
+
+  hideWelcomeMenu();
+  rsvpDisplayEl.textContent = "Processing text...";
+
+  // Mimic PDF parser structure - single chapter
+  const textChapter = {
+    title: "Pasted Text",
+    content: text,
+  };
+
+  chaptersData = {
+    chapters: [textChapter],
+  };
+
+  totalBookWords = text.split(/\s+/).filter(Boolean).length;
+  wpmDisplayMainEl.textContent = `Ready! 1 chapter (${totalBookWords} words)`;
+  setTimeout(() => (wpmDisplayMainEl.textContent = `${wpm} WPM`), 2000);
+
+  populateChapterList();
+  loadCurrentChapter();
+  displayWord(0);
+}
+
+function hideWelcomeMenu() {
+  if (welcomeMenuEl) welcomeMenuEl.style.display = "none";
+  if (document.querySelector(".rsvp-container")) {
+    document.querySelector(".rsvp-container").classList.add("active");
+  }
 }
 
 function populateChapterList() {
   if (!chaptersData) return;
-  chapterListEl.innerHTML = chaptersData.chapters.map((ch, i) => 
-    `<li data-chapter="${i}" class="${i === currentChapterIndex ? 'active' : ''}">${ch.title}</li>`
-  ).join('');
-  
-  chapterListEl.querySelectorAll('li').forEach((li, i) => {
-    li.addEventListener('click', () => {
+  chapterListEl.innerHTML = chaptersData.chapters
+    .map(
+      (ch, i) =>
+        `<li data-chapter="${i}" class="${i === currentChapterIndex ? "active" : ""}">${ch.title}</li>`,
+    )
+    .join("");
+
+  chapterListEl.querySelectorAll("li").forEach((li, i) => {
+    li.addEventListener("click", () => {
       currentChapterIndex = i;
       loadCurrentChapter();
       reset();
       populateChapterList();
-      closeDrawer();
     });
   });
-  
+
+  // Scroll to make current chapter visible (half last item visible on overflow)
+  const currentLi = chapterListEl.querySelector(
+    `li[data-chapter="${currentChapterIndex}"]`,
+  );
+  if (currentLi) {
+    currentLi.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }
+
   loadCurrentChapter();
 }
 
 function loadCurrentChapter() {
   if (!chaptersData) return;
   const chapter = chaptersData.chapters[currentChapterIndex];
-  const content = chapter.content || '';
-  
+  const content = chapter.content || "";
+
   // Prepend chapter title as special word
   const titleWord = {
     text: chapter.title,
     isTitle: true,
-    duration: 1000 // 1 second pause
+    duration: 1000, // 1 second pause
   };
-  
-  words = [titleWord, ...content.split(/\s+/).map(w => w.trim()).filter(w => w).map(w => ({text: w}))];
-  avgWordLen = words.slice(1).reduce((sum, w) => sum + w.text.length, 0) / (words.length - 1) || 5;
+
+  words = [
+    titleWord,
+    ...content
+      .split(/\s+/)
+      .map((w) => w.trim())
+      .filter((w) => w)
+      .map((w) => ({ text: w })),
+  ];
+  avgWordLen =
+    words.slice(1).reduce((sum, w) => sum + w.text.length, 0) /
+      (words.length - 1) || 5;
   currentWordIndex = 0;
   updateProgress();
   updateEtaDisplay();
@@ -323,64 +569,75 @@ function loadCurrentChapter() {
 
 function displayWord(index) {
   if (!words || !words.length || index >= words.length || !rsvpDisplayEl) {
-    rsvpDisplayEl.innerHTML = '';
-    rsvpDisplayEl.textContent = words.length ? 'End of chapter' : 'No content loaded';
+    rsvpDisplayEl.innerHTML = "";
+    rsvpDisplayEl.textContent = words.length
+      ? "End of chapter"
+      : "No content loaded";
     pause();
     return;
   }
-  
+
   const wordObj = words[index];
   const word = wordObj.text;
   const isTitle = wordObj.isTitle || false;
   if (word.length === 0) return;
-  
+
   // Apply title styling
   if (isTitle) {
-    rsvpDisplayEl.classList.add('chapter-title');
+    rsvpDisplayEl.classList.add("chapter-title");
   } else {
-    rsvpDisplayEl.classList.remove('chapter-title');
+    rsvpDisplayEl.classList.remove("chapter-title");
   }
-  
+
   const focusIdx = Math.floor(word.length * 0.35) || 0;
   const focusChar = word[focusIdx] || word[0];
   const preFocus = word.slice(0, focusIdx);
   const postFocus = word.slice(focusIdx + 1);
-  
+
+  // Temp font shrink for long words to fit without ellipsis
+  let originalFontSize = parseFloat(getComputedStyle(rsvpDisplayEl).fontSize);
+  let shrinkClass = "";
+  if (word.length > 12) {
+    shrinkClass = "word-shrink";
+    rsvpDisplayEl.classList.add(shrinkClass);
+  }
+
   // Create symmetric side panels using Canvas to measure exact widths
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
   ctx.font = window.getComputedStyle(rsvpDisplayEl).font;
-  
+
   const preWidth = ctx.measureText(preFocus).width;
   const postWidth = ctx.measureText(postFocus).width;
-  const maxSideWidth = Math.max(preWidth, postWidth)*10;
-  
+  const maxSideWidth = Math.max(preWidth, postWidth) * 40;
+
   rsvpDisplayEl.innerHTML = `
     <div class="prefocus" style="width:${maxSideWidth}px" >${preFocus}</div>
     <div class="focus">${focusChar}</div>
     <div class="postfocus" style="width:${maxSideWidth}px" >${postFocus}</div>
   `;
-  
+
   currentWordIndex = index;
   updateProgress();
   updateEtaDisplay();
 }
 
 function nextWord() {
-  if (!words || !words.length || currentWordIndex >= words.length - 1) return displayWord(words.length - 1 || 0);
-  
+  if (!words || !words.length || currentWordIndex >= words.length - 1)
+    return displayWord(words.length - 1 || 0);
+
   // Use advanced RSVP delay calculator for CURRENT word's display duration
   const currentWordObj = words[currentWordIndex];
   const baseMsPerWord = 60000 / wpm;
   let delay = calculateRsvpDelay(currentWordObj.text, baseMsPerWord);
-  
+
   // Override for chapter titles
   if (currentWordObj.isTitle) {
     delay = currentWordObj.duration || 1000;
   }
-  
+
   delay = Math.max(80, delay);
-  
+
   currentTimeout = setTimeout(() => {
     displayWord(currentWordIndex + 1);
     if (isPlaying) nextWord();
@@ -389,20 +646,20 @@ function nextWord() {
 
 function play() {
   if (!words || !words.length) {
-    console.log('No words loaded');
+    console.log("No words loaded");
     return;
   }
   isPlaying = true;
-  playBtnEl.style.display = 'none';
-  pauseBtnEl.style.display = 'flex';
+  playBtnEl.style.display = "none";
+  pauseBtnEl.style.display = "flex";
   nextWord();
 }
 
 function pause() {
   isPlaying = false;
   if (currentTimeout) clearTimeout(currentTimeout);
-  playBtnEl.style.display = 'flex';
-  pauseBtnEl.style.display = 'none';
+  playBtnEl.style.display = "flex";
+  pauseBtnEl.style.display = "none";
 }
 
 function reset() {
@@ -413,7 +670,10 @@ function reset() {
 
 function scrubWords(delta) {
   pause();
-  currentWordIndex = Math.max(0, Math.min(words.length - 1, currentWordIndex + delta));
+  currentWordIndex = Math.max(
+    0,
+    Math.min(words.length - 1, currentWordIndex + delta),
+  );
   displayWord(currentWordIndex);
 }
 
@@ -429,11 +689,15 @@ function updateProgress() {
 function updateEtaDisplay() {
   const msPerWord = 60000 / wpm;
   if (chapterEtaEl && words.length) {
-    const chMins = Math.round((words.length - currentWordIndex) * msPerWord / 60000);
+    const chMins = Math.round(
+      ((words.length - currentWordIndex) * msPerWord) / 60000,
+    );
     chapterEtaEl.textContent = `Ch: ${chMins}m`;
   }
   if (bookEtaEl && totalBookWords) {
-    const bookMins = Math.round((totalBookWords - currentWordIndex) * msPerWord / 60000);
+    const bookMins = Math.round(
+      ((totalBookWords - currentWordIndex) * msPerWord) / 60000,
+    );
     bookEtaEl.textContent = `Book: ${bookMins}m`;
   }
   if (wpmDisplayMainEl) wpmDisplayMainEl.textContent = `${wpm} WPM`;
@@ -458,27 +722,39 @@ function onWpmChange(value) {
 function setFontSize(size) {
   fontSizeRem = size;
   if (rsvpDisplayEl) rsvpDisplayEl.style.fontSize = `${size}rem`;
-  
-  [fontSmallBtn, fontMediumBtn, fontLargeBtn].forEach(btn => btn?.classList.remove('active'));
-  (size === 2 ? fontSmallBtn : size === 4 ? fontMediumBtn : fontLargeBtn)?.classList.add('active');
-  
+
+  [fontSmallBtn, fontMediumBtn, fontLargeBtn].forEach((btn) =>
+    btn?.classList.remove("active"),
+  );
+  (size === 2
+    ? fontSmallBtn
+    : size === 4
+      ? fontMediumBtn
+      : fontLargeBtn
+  )?.classList.add("active");
+
   saveSettings();
 }
 
 function updateColor(type, value) {
-  const colors = { text: textColor, focus: focusColor, marker: markerColor, bg: bgColor };
+  const colors = {
+    text: textColor,
+    focus: focusColor,
+    marker: markerColor,
+    bg: bgColor,
+  };
   colors[type] = value;
   textColor = colors.text;
   focusColor = colors.focus;
   markerColor = colors.marker;
   bgColor = colors.bg;
-  
+
   document.documentElement.style.setProperty(`--${type}-color`, value);
   document.querySelector(`#${type}-color-preview`).textContent = value;
-  
-  if (type === 'text' && rsvpDisplayEl) rsvpDisplayEl.style.color = value;
-  if (type === 'bg') document.body.style.background = value;
-  
+
+  if (type === "text" && rsvpDisplayEl) rsvpDisplayEl.style.color = value;
+  if (type === "bg") document.body.style.background = value;
+
   saveSettings();
 }
 
@@ -487,33 +763,42 @@ function toggleColorPicker(type) {
 }
 
 function saveSettings() {
-  localStorage.setItem('speedReaderSettings', JSON.stringify({
-    wpm, adaptiveMode, fontSizeRem, textColor, focusColor, markerColor, bgColor
-  }));
+  localStorage.setItem(
+    "speedReaderSettings",
+    JSON.stringify({
+      wpm,
+      adaptiveMode,
+      fontSizeRem,
+      textColor,
+      focusColor,
+      markerColor,
+      bgColor,
+    }),
+  );
 }
 
 function loadSettings() {
   try {
-    const saved = JSON.parse(localStorage.getItem('speedReaderSettings'));
+    const saved = JSON.parse(localStorage.getItem("speedReaderSettings"));
     if (saved) {
       wpm = saved.wpm || 300;
       adaptiveMode = saved.adaptiveMode || false;
       fontSizeRem = saved.fontSizeRem || 4;
-      textColor = saved.textColor || '#f0f0f0';
-      focusColor = saved.focusColor || '#ff4444';
-      markerColor = saved.markerColor || '#4caf50';
-      bgColor = saved.bgColor || '#0a0a0a';
-      
-      document.documentElement.style.setProperty('--text-color', textColor);
-      document.documentElement.style.setProperty('--focus-color', focusColor);
-      document.documentElement.style.setProperty('--marker-color', markerColor);
-      document.documentElement.style.setProperty('--bg-color', bgColor);
+      textColor = saved.textColor || "#f0f0f0";
+      focusColor = saved.focusColor || "#ff4444";
+      markerColor = saved.markerColor || "#4caf50";
+      bgColor = saved.bgColor || "#0a0a0a";
+
+      document.documentElement.style.setProperty("--text-color", textColor);
+      document.documentElement.style.setProperty("--focus-color", focusColor);
+      document.documentElement.style.setProperty("--marker-color", markerColor);
+      document.documentElement.style.setProperty("--bg-color", bgColor);
       document.body.style.background = bgColor;
-      
+
       syncSettingsUI();
     }
   } catch (e) {
-    console.warn('Load settings failed:', e);
+    console.warn("Load settings failed:", e);
   }
 }
 
@@ -521,40 +806,44 @@ function resetSettings() {
   wpm = 300;
   adaptiveMode = false;
   fontSizeRem = 4;
-  textColor = '#f0f0f0';
-  focusColor = '#ff4444';
-  markerColor = '#4caf50';
-  bgColor = '#0a0a0a';
-  
+  textColor = "#f0f0f0";
+  focusColor = "#ff4444";
+  markerColor = "#4caf50";
+  bgColor = "#0a0a0a";
+
   syncSettingsUI();
   updateDisplays();
-  
-  document.documentElement.style.setProperty('--text-color', textColor);
-  document.documentElement.style.setProperty('--focus-color', focusColor);
-  document.documentElement.style.setProperty('--marker-color', markerColor);
-  document.documentElement.style.setProperty('--bg-color', bgColor);
+
+  document.documentElement.style.setProperty("--text-color", textColor);
+  document.documentElement.style.setProperty("--focus-color", focusColor);
+  document.documentElement.style.setProperty("--marker-color", markerColor);
+  document.documentElement.style.setProperty("--bg-color", bgColor);
   document.body.style.background = bgColor;
-  
-  localStorage.removeItem('speedReaderSettings');
+
+  localStorage.removeItem("speedReaderSettings");
   closeSettingsDrawer();
 }
 
 function onKeyDown(e) {
-  if (e.target.tagName === 'INPUT') return;
-  
-  switch(e.code) {
-    case 'Space': 
+  if (e.target.tagName === "INPUT") return;
+
+  switch (e.code) {
+    case "Space":
       e.preventDefault();
       isPlaying ? pause() : play();
       break;
-    case 'ArrowLeft': scrubWords(-10); break;
-    case 'ArrowRight': scrubWords(10); break;
-    case 'ArrowUp': 
+    case "ArrowLeft":
+      scrubWords(-10);
+      break;
+    case "ArrowRight":
+      scrubWords(10);
+      break;
+    case "ArrowUp":
       wpm = Math.min(1000, wpm + 50);
       wpmSlider.value = wpm;
       onWpmChange(wpm);
       break;
-    case 'ArrowDown': 
+    case "ArrowDown":
       wpm = Math.max(100, wpm - 50);
       wpmSlider.value = wpm;
       onWpmChange(wpm);
@@ -563,6 +852,5 @@ function onKeyDown(e) {
 }
 
 function displayWelcome() {
-  rsvpDisplayEl.textContent = 'Upload a PDF to start reading';
+  rsvpDisplayEl.textContent = "Upload a PDF to start reading";
 }
-

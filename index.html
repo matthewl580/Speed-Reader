@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="dark light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
     <title>Nieche Reader</title>
     <!-- STABLE pdf.js v2.16.105 legacy build - global pdfjsLib -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
@@ -11,12 +11,13 @@
     <script>
       // Wait for pdf.js to load
       function waitForPdfJs() {
-        if (typeof pdfjsLib !== 'undefined') {
-          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-          console.log('PDF.js v2.16.105 worker configured');
+        if (typeof pdfjsLib !== "undefined") {
+          pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+          console.log("PDF.js v2.16.105 worker configured");
           // Load parser now
-          const parserScript = document.createElement('script');
-          parserScript.src = 'parser.js';
+          const parserScript = document.createElement("script");
+          parserScript.src = "parser.js";
           document.head.appendChild(parserScript);
         } else {
           setTimeout(waitForPdfJs, 50);
@@ -25,177 +26,151 @@
       waitForPdfJs();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    
-    <!-- Google Fonts & Material Symbols -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght@400;500&amp;family=Roboto:wght@400;500;700&amp;display=swap" />
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <header>
-        <h1>Nieche Reader</h1>
-        <button id="hamburger-menu" class="hamburger-btn" title="Menu">
-            <span class="material-symbols-rounded">menu</span>
-        </button>
-        <button id="settings-btn" class="control-btn settings-btn" title="Settings">
-            <span class="material-symbols-rounded">settings</span>
-        </button>
-        <label for="fileInput" class="file-upload-label" title="Upload PDF">
-            <span class="material-symbols-rounded">upload_file</span>
-            <span>Upload PDF</span>
-        </label>
-        <input type="file" id="fileInput" accept=".pdf" style="display: none;">
-        <p id="status">Click Upload PDF to start</p>
-    </header>
-    <main>
-        <!-- Chapters Drawer -->
-        <nav id="drawer-menu" class="drawer-overlay">
-            <div class="drawer-header">
-                <span class="material-symbols-rounded">menu_book</span>
-                Chapters
-            </div>
-            <ul id="chapter-list" class="chapter-list">
-            </ul>
-        </nav>
-        <div id="drawer-scrim" class="drawer-scrim"></div>
 
-        <!-- RSVP Section -->
-        <section class="rsvp-container">
-            <div id="rsvp-display">Upload a PDF to start reading</div>
-            
-            <div class="controls">
-                <div class="control-row top-row">
-                    <button id="prev-10" class="control-btn scrub-btn" title="Back 10 words">
-                      <span class="material-symbols-rounded">arrow_back</span>
-                    </button>
-                    <button id="play-btn" class="control-btn play-pause large-btn" title="Play">
-                      <span class="material-symbols-rounded">play_arrow</span>
-                    </button>
-                    <button id="pause-btn" class="control-btn play-pause large-btn" style="display: none;" title="Pause">
-                      <span class="material-symbols-rounded">pause</span>
-                    </button>
-                    <button id="reset-btn" class="control-btn large-btn" title="Reset">
-                      <span class="material-symbols-rounded">replay</span>
-                    </button>
-                    <button id="next-10" class="control-btn scrub-btn" title="Forward 10 words">
-                      <span class="material-symbols-rounded">arrow_forward</span>
-                    </button>
-                </div>
-                
-                <div class="control-row bottom-row">
-                    <span id="wpm-display" class="info-display">300 WPM</span>
-                    <span id="chapter-eta" class="info-display">Ch: --</span>
-                    <span id="book-eta" class="info-display">Book: --</span>
-                    <div class="progress-section">
-                        <div id="combined-progress" class="combined-progress-bar">
-                            <div id="chapter-progress" class="progress-fill chapter-fill"></div>
-                            <div id="book-progress" class="progress-fill book-fill"></div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Google Fonts & Material Symbols -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght@400;500&family=Roboto:wght@400;500;700&display=swap"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Nieche Reader</h1>
+    </header>
+
+    <!-- Chapter Menu Bar - Full width horizontal scroll -->
+    <nav id="drawer-menu" class="drawer-overlay">
+      <span class="menu-icon material-symbols-rounded">menu_book</span>
+      <ul id="chapter-list" class="chapter-list"></ul>
+    </nav>
+
+    <main>
+      <!-- Welcome Menu -->
+      <section id="welcome-menu" class="welcome-menu">
+        <div class="welcome-card">
+          <h2>🌟 Start Reading</h2>
+          <p>Choose text or PDF for the best speed reading experience</p>
+          <div class="menu-buttons">
+            <button id="paste-text-btn" class="menu-btn text-btn">
+              <span class="material-symbols-rounded">text_fields</span>
+              <span>Paste Text</span>
+            </button>
+            <div class="menu-btn pdf-btn">
+              <input
+                type="file"
+                id="fileInput"
+                accept=".pdf"
+                style="display: none"
+              />
+              <label
+                for="fileInput"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: 0.75rem;
+                  cursor: pointer;
+                  width: 100%;
+                  height: 100%;
+                "
+              >
+                <span class="material-symbols-rounded">picture_as_pdf</span>
+                <span>Upload PDF</span>
+              </label>
             </div>
-        </section>
+          </div>
+          <div
+            id="text-input-section"
+            class="text-input-section"
+            style="display: none"
+          >
+            <textarea
+              id="text-input"
+              placeholder="Paste your text, article, or book content here...&#10;&#10;📖 The quick brown fox jumps over the lazy dog. This speed reader will help you read faster!"
+            ></textarea>
+            <button id="start-text-btn" class="start-reading-btn">
+              🚀 Start Reading
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- RSVP Section -->
+      <section class="rsvp-container">
+        <div id="rsvp-display">Get started with text or PDF!</div>
+
+        <div class="controls">
+          <div class="control-row top-row">
+            <button
+              id="prev-10"
+              class="control-btn scrub-btn"
+              title="Back 10 words"
+            >
+              <span class="material-symbols-rounded">arrow_back</span>
+            </button>
+            <button
+              id="play-btn"
+              class="control-btn play-pause large-btn"
+              title="Play"
+            >
+              <span class="material-symbols-rounded">play_arrow</span>
+            </button>
+            <button
+              id="pause-btn"
+              class="control-btn play-pause large-btn"
+              style="display: none"
+              title="Pause"
+            >
+              <span class="material-symbols-rounded">pause</span>
+            </button>
+            <button id="reset-btn" class="control-btn large-btn" title="Reset">
+              <span class="material-symbols-rounded">replay</span>
+            </button>
+            <button
+              id="next-10"
+              class="control-btn scrub-btn"
+              title="Forward 10 words"
+            >
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </button>
+          </div>
+
+          <div class="control-row bottom-row">
+            <span id="wpm-display" class="info-display">300 WPM</span>
+            <div class="wpm-slider-container">
+              <input
+                type="range"
+                id="wpm-slider"
+                min="100"
+                max="1000"
+                value="300"
+                step="25"
+                class="main-slider"
+              />
+              <span id="wpm-display-settings" class="info-display wpm-inline"
+                >300</span
+              >
+            </div>
+            <span id="chapter-eta" class="info-display">Ch: --</span>
+            <span id="book-eta" class="info-display">Book: --</span>
+            <div class="progress-section">
+              <div id="combined-progress" class="combined-progress-bar">
+                <div
+                  id="chapter-progress"
+                  class="progress-fill chapter-fill"
+                ></div>
+                <div id="book-progress" class="progress-fill book-fill"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
-    <!-- FIXED Settings Drawer - Native Controls -->
-    <nav id="settings-drawer" class="settings-drawer">
-        <div class="settings-header">
-            <span class="material-symbols-rounded">tune</span>
-            <h2>Settings</h2>
-        </div>
-        
-        <div class="settings-content">
-            <!-- Playback Section -->
-            <section class="settings-section">
-                <h3>Playback</h3>
-                <div class="settings-field">
-                    <label for="wpm-slider">Words per minute</label>
-                    <div class="slider-container">
-                        <input type="range" id="wpm-slider" min="100" max="1000" value="300" step="50">
-                        <span id="wpm-display-settings">300 WPM</span>
-                    </div>
-                </div>
-                
-                <div class="settings-field">
-                    <label class="switch-container">
-                        <input type="checkbox" id="adaptive-toggle">
-                        <span class="switch-slider"></span>
-                        Adaptive timing
-                    </label>
-                </div>
-            </section>
-
-            <!-- Appearance Section -->
-            <section class="settings-section">
-                <h3>Appearance</h3>
-                
-                <div class="settings-field">
-                    <label>Text color</label>
-                    <div class="color-row">
-                        <button id="text-color-btn" class="color-btn">
-                            <span class="material-symbols-rounded">color_lens</span>
-                            <span id="text-color-preview">#f0f0f0</span>
-                        </button>
-                        <input type="color" id="text-color" value="#f0f0f0">
-                    </div>
-                </div>
-
-                <div class="settings-field">
-                    <label>Focus color</label>
-                    <div class="color-row">
-                        <button id="focus-color-btn" class="color-btn">
-                            <span class="material-symbols-rounded">visibility</span>
-                            <span id="focus-color-preview">#ff4444</span>
-                        </button>
-                        <input type="color" id="focus-color" value="#ff4444">
-                    </div>
-                </div>
-
-                <div class="settings-field">
-                    <label>Marker color</label>
-                    <div class="color-row">
-                        <button id="marker-color-btn" class="color-btn">
-                            <span class="material-symbols-rounded">straighten</span>
-                            <span id="marker-color-preview">#4caf50</span>
-                        </button>
-                        <input type="color" id="marker-color" value="#4caf50">
-                    </div>
-                </div>
-
-                <div class="settings-field">
-                    <label>Background color</label>
-                    <div class="color-row">
-                        <button id="bg-color-btn" class="color-btn">
-                            <span class="material-symbols-rounded">format_paint</span>
-                            <span id="bg-color-preview">#0a0a0a</span>
-                        </button>
-                        <input type="color" id="bg-color" value="#0a0a0a">
-                    </div>
-                </div>
-
-                <!-- Font Size Buttons -->
-                <div class="settings-field">
-                    <label>Text size</label>
-                    <div class="font-buttons">
-                        <button id="font-small" class="font-btn">S</button>
-                        <button id="font-medium" class="font-btn active">M</button>
-                        <button id="font-large" class="font-btn">L</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Actions -->
-            <div class="settings-actions">
-                <button id="reset-settings" class="btn-secondary">Reset defaults</button>
-                <button id="close-settings" class="btn-primary">Close</button>
-            </div>
-        </div>
-    </nav>
-    <div id="settings-scrim" class="drawer-scrim"></div>
-
     <!-- App logic -->
-    <script type="module" src="rsvpDelay.js"></script>
     <script type="module" src="script.js"></script>
-</body>
+  </body>
 </html>
