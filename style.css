@@ -21,7 +21,7 @@
   --radius-small: 8px;
   --text-color: #f0f0f0;
   --focus-accent: #f5a8a8; /* light salmon */
-  --guide-grey: #666;
+  --guide-grey: #56606f;
   --quote-bg: #4a2c4a; /* deep burgundy/plum */
   --band-bg: #121212;
   --focus-color: #ff4444;
@@ -177,7 +177,7 @@ main {
 /* RSVP Band & ORP */
 .rsvp-band {
   background: var(--band-bg);
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: var(--band-height) 2rem;
   display: flex;
   align-items: center;
@@ -224,29 +224,59 @@ width: 100%;
 }
 
 .vertical-guide.top {
-  top: 40px;
+  top: 50px;
+  position: relative;
+}
+.vertical-guide.top::before {
+     content: "";
+    position: absolute;
+    top: -3px;
+    left: -25vw;
+    right: -20px;
+    height: 2px;
+    background: var(--guide-grey);
+    border-radius: 1px;
+    width: 50vw;
+    height: 2px;
+}
+.vertical-guide.top {
+  bottom: top;
   height: 20px;
-  box-shadow: 0 0 8px rgba(102, 102, 102, 0.5);
+  box-shadow: 0 0 8px var(--border);
+      position: absolute;
 }
 
 .vertical-guide.bottom {
-  bottom: 40px;
+  bottom: 50px;
   height: 20px;
-  box-shadow: 0 0 8px rgba(102, 102, 102, 0.5);
+  box-shadow: 0 0 8px var(--border);
+      position: absolute;
+}
+.vertical-guide.bottom::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+    left: -25vw;
+  right: -20px;
+  height: 2px;
+  background: var(--guide-grey);
+  border-radius: 1px;
+    width: 50vw;
+
 }
 
 .prefocus {
   color: var(--text-color);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   font-weight: 400;
-  width: 100%;
+  width: 100vw;
 }
 
 .postfocus {
   color: var(--text-color);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   font-weight: 400;
-    width: 100%;
+    width: 100vw;
 
 }
 
