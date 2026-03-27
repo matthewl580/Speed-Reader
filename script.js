@@ -317,7 +317,7 @@ const STOP_WORDS = new Set([
  * @param {number} baseMsPerWord - Base milliseconds per word from WPM (60000 / wpm)
  * @returns {number} Delay in milliseconds
  */
-export function calculateRsvpDelay(word, baseMsPerWord) {
+function calculateRsvpDelay(word, baseMsPerWord) {
   if (!word || typeof word !== "string") return baseMsPerWord;
 
   const cleanWord = word.trim();
@@ -375,7 +375,7 @@ export function calculateRsvpDelay(word, baseMsPerWord) {
  * @param {number} wpm - Words per minute
  * @returns {number[]} Array of delays matching word lengths
  */
-export function calculateBatchDelays(words, wpm) {
+function calculateBatchDelays(words, wpm) {
   const baseMsPerWord = 60000 / wpm;
   return words.map((word) => calculateRsvpDelay(word, baseMsPerWord));
 }
@@ -442,7 +442,7 @@ function handleFileInput(e) {
   window.parsePDF(file).then((data) => {
     chaptersData = data;
     totalBookWords = data.chapters.reduce(
-      (sum, ch) => sum + ch.content.split(/\s+/).filter(Boolean).length,
+      (sum, ch) => sum + (ch.words ? ch.words.length : 0),
       0,
     );
     wpmDisplayMainEl.innerHTML = `Ready! ${data.chapters.length} chapters`;
@@ -487,17 +487,25 @@ function handleTextInput() {
   hideWelcomeMenu();
   rsvpDisplayEl.textContent = "Processing text...";
 
-  // Mimic PDF parser structure - single chapter
-  const textChapter = {
-    title: "Pasted Text",
-    content: text,
-  };
+  const textWords = text
+    .split(/\s+/)
+    .map((w) => w.trim())
+    .filter((w) => w)
+    .map((w) => ({
+      text: w,
+      isQuoted: false,
+    }));
 
   chaptersData = {
-    chapters: [textChapter],
+    chapters: [
+      {
+        title: "Pasted Text",
+        words: textWords,
+      },
+    ],
   };
 
-  totalBookWords = text.split(/\s+/).filter(Boolean).length;
+  totalBookWords = textWords.length;
   wpmDisplayMainEl.innerHTML = `Ready! 1 chapter (${totalBookWords} words)`;
   setTimeout(() => (wpmDisplayMainEl.textContent = `${wpm} WPM`), 2000);
 
@@ -549,80 +557,71 @@ function populateChapterList() {
 function loadCurrentChapter() {
   if (!chaptersData) return;
   const chapter = chaptersData.chapters[currentChapterIndex];
-  const content = chapter.content || "";
 
-  // Prepend chapter title as special word
   const titleWord = {
     text: chapter.title,
     isTitle: true,
-    duration: 1000, // 1 second pause
+    duration: 1000,
+    isQuoted: false,
   };
 
-  words = [
-    titleWord,
-    ...content
-      .split(/\s+/)
-      .map((w) => w.trim())
-      .filter((w) => w)
-      .map((w) => ({ text: w })),
-  ];
-  avgWordLen =
-    words.slice(1).reduce((sum, w) => sum + w.text.length, 0) /
-      (words.length - 1) || 5;
+  words = [titleWord, ...(chapter.words || [])].filter((w) => w && w.text);
+
   currentWordIndex = 0;
   updateProgress();
   updateEtaDisplay();
 }
 
-function displayWord(index) {
-  if (!words || !words.length || index >= words.length || !rsvpDisplayEl) {
-    rsvpDisplayEl.innerHTML = "";
-    rsvpDisplayEl.textContent = words.length
-      ? "End of chapter"
-      : "No content loaded";
-    pause();
-    return;
+// NEW: Modified displayWord for quote effect
+function getOptimalFocusIndex(word) {
+  const vowels = "aeiouAEIOU";
+  for (let i = 1; i < word.length - 1; i++) {
+    if (vowels.includes(word[i])) return i;
   }
+  return Math.floor(word.length / 2);
+}
 
+function displayWord(index) {
   const wordObj = words[index];
   const word = wordObj.text;
-  const isTitle = wordObj.isTitle || false;
-  if (word.length === 0) return;
+  const focusIdx = getOptimalFocusIndex(word);
+  const pre = word.slice(0, focusIdx);
+  const focusChar = word[focusIdx];
+  const post = word.slice(focusIdx + 1);
 
-  // Apply title styling
-  if (isTitle) {
-    rsvpDisplayEl.classList.add("chapter-title");
+  rsvpDisplayEl.className = wordObj.isQuoted ? "quoted" : "";
+
+  if (wordObj.isQuoted) {
+    rsvpDisplayEl.style.fontFamily = '"Atkinson Hyperlegible", sans-serif';
+    rsvpDisplayEl.innerHTML = `
+      <div class="rsvp-band highlight">
+        <span class="quote-mark open-quote">“</span>
+        <div class="word-container ">
+          <div class="vertical-guide top"></div>
+          <div class="focus-point">
+            <span class="prefocus">${pre}</span>
+            <span class="focus">${focusChar}</span>
+            <span class="postfocus">${post}</span>
+          </div>
+          <div class="vertical-guide bottom"></div>
+        </div>
+        <span class="quote-mark close-quote">”</span>
+      </div>`;
   } else {
-    rsvpDisplayEl.classList.remove("chapter-title");
+    rsvpDisplayEl.style.fontFamily = '"Atkinson Hyperlegible", sans-serif';
+    rsvpDisplayEl.innerHTML = `
+      <div class="rsvp-band">
+        <div class="word-container">
+          <div class="vertical-guide top"></div>
+          <div class="focus-point">
+            <span class="prefocus">${pre}</span>
+            <span class="focus">${focusChar}</span>
+            <span class="postfocus">${post}</span>
+          </div>
+          <div class="vertical-guide bottom"></div>
+        </div>
+      </div>`;
   }
-
-  const focusIdx = Math.floor(word.length * 0.35) || 0;
-  const focusChar = word[focusIdx] || word[0];
-  const preFocus = word.slice(0, focusIdx);
-  const postFocus = word.slice(focusIdx + 1);
-
-  // Temp font shrink for long words to fit without ellipsis
-  let originalFontSize = parseFloat(getComputedStyle(rsvpDisplayEl).fontSize);
-  let shrinkClass = "";
-  if (word.length > 12) {
-    shrinkClass = "word-shrink";
-    rsvpDisplayEl.classList.add(shrinkClass);
-  }
-
-  // Create symmetric side panels using Canvas to measure exact widths
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  ctx.font = window.getComputedStyle(rsvpDisplayEl).font;
-
-  const preWidth = ctx.measureText(preFocus).width;
-  const postWidth = ctx.measureText(postFocus).width;
-  const maxSideWidth = Math.max(preWidth, postWidth) * 40;
-
-  rsvpDisplayEl.innerHTML = `
-    <div class="prefocus" style="width:${maxSideWidth}px" >${preFocus}</div>
-    <div class="focus">${focusChar}</div>
-    <div class="postfocus" style="width:${maxSideWidth}px" >${postFocus}</div>
-  `;
 
   currentWordIndex = index;
   updateProgress();
