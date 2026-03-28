@@ -13,6 +13,9 @@ let totalBookWords = 0;
 let fontSizeRem = 4;
 let currentTimeout = null;
 let sentencePunct = "";
+let rampActive = true;
+let rampProgress = 0; // seconds
+let rampStartTime = 0;
 
 // Color settings state
 let textColor = "#f0f0f0";
@@ -686,13 +689,27 @@ function displayWord(index) {
   updateEtaDisplay();
 }
 
+function getRampedWpm() {
+  if (!rampActive) return wpm;
+  const elapsed = (performance.now() - rampStartTime) / 1000;
+  rampProgress = Math.min(elapsed, 7); // 7 seconds ramp
+  const rampFactor = rampProgress / 7;
+  const rampedWpm = wpm * 0.8 + wpm * 0.2 * rampFactor;
+  if (rampFactor >= 1) {
+    rampActive = false;
+    rampProgress = 0;
+  }
+  return Math.round(rampedWpm);
+}
+
 function nextWord() {
   if (!words || !words.length || currentWordIndex >= words.length - 1)
     return displayWord(words.length - 1 || 0);
 
-  // Use advanced RSVP delay calculator for CURRENT word's display duration
+  // Use advanced RSVP delay calculator with ramped WPM
   const currentWordObj = words[currentWordIndex];
-  const baseMsPerWord = 60000 / wpm;
+  const rampedWpm = getRampedWpm();
+  const baseMsPerWord = 60000 / rampedWpm;
   let delay = calculateRsvpDelay(currentWordObj.text, baseMsPerWord);
 
   // Override for chapter titles
@@ -714,6 +731,9 @@ function play() {
     return;
   }
   isPlaying = true;
+  rampActive = true;
+  rampProgress = 0;
+  rampStartTime = performance.now();
   playBtnEl.style.display = "none";
   pauseBtnEl.style.display = "flex";
   nextWord();
