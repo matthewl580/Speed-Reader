@@ -184,6 +184,7 @@ main {
   width: 100%;
   max-width: 95vw;
   bottom: 25%;
+      padding-left: 3px;
   position: relative;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
