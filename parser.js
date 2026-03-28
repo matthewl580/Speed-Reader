@@ -20,10 +20,10 @@
       if (!part) continue;
 
       // Check for quote toggles
-      if (openQuotes.test(part)) {
+      if (quoteTypes.test(part)&& !isInQuotes) {
         isInQuotes = true;
         part = part.replace(openQuotes, "");
-      } else if (closeQuotes.test(part) && isInQuotes) {
+      } else if (quoteTypes.test(part) && isInQuotes) {
         isInQuotes = false;
         part = part.replace(closeQuotes, "");
       }
@@ -45,7 +45,7 @@
     try {
       if (!file || file.type !== "application/pdf")
         throw new Error("Invalid PDF");
-      if (file.size > 50 * 1024 * 1024) throw new Error("PDF too large");
+      if (file.size > 64 * 1024 * 1024) throw new Error("PDF too large");
 
       onProgress?.("Reading file...");
       const arrayBuffer = await file.arrayBuffer();

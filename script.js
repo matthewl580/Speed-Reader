@@ -507,7 +507,7 @@ function handleTextInput() {
     .filter((w) => w)
     .map((w) => ({
       text: w,
-      isQuoted: false,
+      isQuoted: true,
     }));
 
   chaptersData = {
@@ -545,13 +545,19 @@ function populateChapterList() {
     .join("");
 
   chapterListEl.querySelectorAll("li").forEach((li, i) => {
-    li.addEventListener("click", () => {
-      currentChapterIndex = i;
-      loadCurrentChapter();
-      reset();
-      populateChapterList();
+    li.setAttribute('role', 'button');
+    li.setAttribute('tabindex', '0');
+    li.setAttribute('aria-label', `Chapter ${i + 1}: ${chaptersData.chapters[i].title}`);
+    
+    li.addEventListener("click", () => switchChapter(i));
+    li.addEventListener("keydown", (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        switchChapter(i);
+      }
     });
   });
+
 
   // Scroll to make current chapter visible (half last item visible on overflow)
   const currentLi = chapterListEl.querySelector(
