@@ -69,6 +69,8 @@ document.addEventListener("DOMContentLoaded", () => {
   startTextBtnEl = document.getElementById("start-text-btn");
   wpmDisplayMainEl = document.getElementById("wpm-display");
   combinedEtaEl = document.getElementById("combined-eta");
+  wpmControlEl = document.getElementById("wpm-control");
+  wpmValueEl = document.getElementById("wpm-value");
   chapterProgressEl = document.getElementById("chapter-progress");
   bookProgressEl = document.getElementById("book-progress");
   playBtnEl = document.getElementById("play-btn");
@@ -82,10 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Settings elements - NATIVE
   settingsDrawerEl = document.getElementById("settings-drawer");
   settingsScrimEl = document.getElementById("settings-scrim");
-  wpmDecreaseBtn = document.getElementById("wpm-decrease");
-  wpmIncreaseBtn = document.getElementById("wpm-increase");
-  wpmDisplaySettings = document.getElementById("wpm-display-settings");
   adaptiveToggle = document.getElementById("adaptive-toggle");
+
   textColorInput = document.getElementById("text-color");
   textColorBtn = document.getElementById("text-color-btn");
   textColorPreview = document.getElementById("text-color-preview");
@@ -126,22 +126,35 @@ document.addEventListener("DOMContentLoaded", () => {
   if (prev10BtnEl) prev10BtnEl.addEventListener("click", () => scrubWords(-10));
   if (next10BtnEl) next10BtnEl.addEventListener("click", () => scrubWords(10));
 
-  // WPM buttons
-  if (wpmDecreaseBtn)
-    wpmDecreaseBtn.addEventListener("click", () => {
-      wpm = Math.max(100, wpm - 25);
+  // Compact WPM control - left decrease, right increase
+  if (wpmControlEl) {
+    wpmControlEl.addEventListener("click", (e) => {
+      const rect = wpmControlEl.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const halfWidth = rect.width / 2;
+
+      if (clickX < halfWidth) {
+        // Left side: decrease
+        wpm = Math.max(0, wpm - 25);
+        wpmControlEl.classList.add("wpm-decrease");
+        wpmControlEl.classList.remove("wpm-increase");
+      } else {
+        // Right side: increase
+        wpm = Math.min(1000, wpm + 25);
+        wpmControlEl.classList.add("wpm-increase");
+        wpmControlEl.classList.remove("wpm-decrease");
+      }
+
       onWpmChange(wpm);
     });
-  if (wpmIncreaseBtn)
-    wpmIncreaseBtn.addEventListener("click", () => {
-      wpm = Math.min(1500, wpm + 25);
-      onWpmChange(wpm);
-    });
+  }
+
   if (adaptiveToggle)
     adaptiveToggle.addEventListener(
       "change",
       (e) => (adaptiveMode = e.target.checked),
     );
+
   if (textColorInput)
     textColorInput.addEventListener("change", (e) =>
       updateColor("text", e.target.value),
@@ -394,6 +407,7 @@ function toggleSettingsDrawer() {
 }
 
 function syncSettingsUI() {
+  if (wpmValueEl) wpmValueEl.textContent = wpm;
   if (wpmDisplaySettings) wpmDisplaySettings.innerHTML = `${wpm}<br>WPM`;
 
   if (adaptiveToggle) adaptiveToggle.checked = adaptiveMode;
@@ -717,7 +731,8 @@ function updateWpmDisplay() {
 
 function onWpmChange(value) {
   wpm = value;
-  if (wpmDisplaySettings) wpmDisplaySettings.textContent = `${wpm} WPM`;
+  if (wpmValueEl) wpmValueEl.textContent = wpm;
+  if (wpmDisplaySettings) wpmDisplaySettings.textContent = `${wpm}`;
   updateDisplays();
   saveSettings();
 }
@@ -842,11 +857,11 @@ function onKeyDown(e) {
       scrubWords(10);
       break;
     case "ArrowUp":
-      wpm = Math.min(1500, wpm + 50);
+      wpm = Math.min(1000, wpm + 50);
       onWpmChange(wpm);
       break;
     case "ArrowDown":
-      wpm = Math.max(100, wpm - 50);
+      wpm = Math.max(0, wpm - 50);
       onWpmChange(wpm);
       break;
   }

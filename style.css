@@ -416,8 +416,7 @@ width: 100%;
   font-size: 0.9rem;
   font-weight: 600;
   padding: 0.5rem 1rem;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(20px);
+background: linear-gradient(145deg, #2a2a2a, #252525);  backdrop-filter: blur(20px);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   min-width: 5ch;
@@ -1320,8 +1319,8 @@ input[type="color"] {
   }
 
   .controls {
-    bottom: 1rem;
-    padding: 1rem;
+    bottom: 0.75rem;
+    padding: 0.5rem;
   }
 }
 
@@ -1340,4 +1339,76 @@ input[type="color"] {
 .drawer-overlay::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.3);
   border-radius: 2px;
+}
+.wpm-control-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(145deg, #2a2a2a, #252525);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  color: var(--text-primary);
+  font-family: "SF Mono", Monaco, monospace;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 36px;
+  white-space: nowrap;
+  letter-spacing: 0.025em;
+}
+
+.wpm-control-btn::after {
+  content: "WPM";
+  font-size: 0.7rem;
+  opacity: 0.6;
+  margin-left: 0.25rem;
+}
+
+.wpm-compact {
+  font-size: 0.9rem;
+  font-weight: 700;
+  min-width: 1ch;
+  padding: 0 0.125rem;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+.wpm-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  min-width: 2.5ch;
+  text-align: center;
+  color: var(--accent-orange);
+}
+
+.wpm-control-btn:hover {
+  background: linear-gradient(145deg, #3a3a3a, #353535);
+  border-color: var(--accent-orange);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.wpm-control-btn.wpm-decrease .wpm-compact:first-child {
+  color: var(--accent-red);
+  opacity: 1;
+}
+
+.wpm-control-btn.wpm-increase .wpm-compact:last-child {
+  color: var(--accent-green);
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .wpm-control-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    min-height: 32px;
+  }
+
+  .wpm-compact,
+  .wpm-value {
+    font-size: 0.85rem;
+  }
 }

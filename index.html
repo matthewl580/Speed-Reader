@@ -35,7 +35,9 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="wpm-compact.css" />
   </head>
+
   <body>
     <header>
       <h1>Nieche Reader</h1>
@@ -142,20 +144,20 @@
             <span id="wpm-display" style="display: none" class="info-display"
               >300 WPM</span
             >
-            <div class="wpm-button-container">
-              <button id="wpm-decrease" class="wpm-btn" title="Decrease WPM">
-                -
-              </button>
-              <span id="wpm-display-settings" class="info-display wpm-inline"
-                >300</span
-              >
-              <button id="wpm-increase" class="wpm-btn" title="Increase WPM">
-                +
-              </button>
-            </div>
-            <span id="combined-eta" class="info-display">Ch: -- | Book: --</span>
-          </div>
+            <button
+              id="wpm-control"
+              class="wpm-control-btn"
+              title="Click to adjust WPM"
+            >
+              <span class="wpm-compact">-</span>
+              <span id="wpm-value" class="wpm-value">300</span>
+              <span class="wpm-compact">+</span>
+            </button>
 
+            <span id="combined-eta" class="info-display"
+              >Ch: -- | Book: --</span
+            >
+          </div>
         </div>
       </section>
     </main>
