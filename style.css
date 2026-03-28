@@ -182,11 +182,16 @@ main {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 90vw;
+  max-width: 95vw;
+  bottom: 25%;
   position: relative;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
-
+.close-quote {
+  position: absolute;
+    right: 0px;
+    bottom: 40px;
+}
 .quoted .rsvp-band {
   background: var(--quote-bg);
 }

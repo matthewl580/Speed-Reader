@@ -30,7 +30,7 @@
 
       if (part) {
         words.push({
-          text: part,
+          text: part.replace(quoteTypes, " ").trim(),
           isQuoted: isInQuotes,
         });
       }

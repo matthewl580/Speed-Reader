@@ -535,6 +535,13 @@ function hideWelcomeMenu() {
   }
 }
 
+function switchChapter(index) {
+  currentChapterIndex = index;
+  loadCurrentChapter();
+  reset();
+  populateChapterList();
+}
+
 function populateChapterList() {
   if (!chaptersData) return;
   chapterListEl.innerHTML = chaptersData.chapters
@@ -545,19 +552,21 @@ function populateChapterList() {
     .join("");
 
   chapterListEl.querySelectorAll("li").forEach((li, i) => {
-    li.setAttribute('role', 'button');
-    li.setAttribute('tabindex', '0');
-    li.setAttribute('aria-label', `Chapter ${i + 1}: ${chaptersData.chapters[i].title}`);
-    
+    li.setAttribute("role", "button");
+    li.setAttribute("tabindex", "0");
+    li.setAttribute(
+      "aria-label",
+      `Chapter ${i + 1}: ${chaptersData.chapters[i].title}`,
+    );
+
     li.addEventListener("click", () => switchChapter(i));
     li.addEventListener("keydown", (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
+      if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         switchChapter(i);
       }
     });
   });
-
 
   // Scroll to make current chapter visible (half last item visible on overflow)
   const currentLi = chapterListEl.querySelector(
