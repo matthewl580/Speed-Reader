@@ -129,7 +129,7 @@ main {
   font-weight: 700;
   line-height: 1.1;
   font-family: "Atkinson Hyperlegible", sans-serif;
-  --band-height: 1.5em;
+  --band-height: 6rem;
   position: relative;
   width: 90vw;
   max-width: 1200px;
@@ -184,14 +184,23 @@ main {
   width: 100%;
   max-width: 95vw;
   bottom: 25%;
-      padding-left: 3px;
+  padding-left: 3px;
   position: relative;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
-.close-quote {
+
+
+.punctuation {
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  line-height: 1;
+  display: inline-block;
+  margin: 0 0.3rem;
+  opacity: 80;
   position: absolute;
-    right: 0px;
-    bottom: 40px;
+  z-index: 10;
+        right: 40px;
 }
 .quoted .rsvp-band {
   background: var(--quote-bg);
@@ -296,8 +305,13 @@ main {
   font-weight: 700;
   opacity: 0.8;
   line-height: 0;
+  position: absolute;
+   top: 50%;
+   color: var(--text-secondary);
 }
-
+.close-quote {
+  right: 0;
+}
 .word-parts {
   position: absolute;
   left: 50vw;

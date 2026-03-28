@@ -12,6 +12,7 @@ let avgWordLen = 5;
 let totalBookWords = 0;
 let fontSizeRem = 4;
 let currentTimeout = null;
+let sentencePunct = "";
 
 // Color settings state
 let textColor = "#f0f0f0";
@@ -612,7 +613,32 @@ function getOptimalFocusIndex(word) {
 
 function displayWord(index) {
   const wordObj = words[index];
-  const word = wordObj.text;
+  let word = wordObj.text.trim();
+  let punct = "";
+  let punctHtml = "";
+
+  // Detect punctuation at end for ALL words
+  const punctMatch = word.match(/([!?,.;])$/);
+  if (punctMatch) {
+    punct = punctMatch[1];
+    word = word.slice(0, -1);
+    if (punct === "!" || punct === "?" || punct === ".") {
+      sentencePunct = punct;
+    }
+  }
+  // Add sentence punct if active - . only on final word, others persist
+  if (sentencePunct && !punct) {
+    if (sentencePunct !== ".") {
+      punctHtml = `<span class="punctuation">${sentencePunct}</span>`;
+    }
+  } else if (punct) {
+    punctHtml = `<span class="punctuation">${punct}</span>`;
+  }
+  // Clear sentence punct on new sentence
+  if (punct === "!" || punct === "?" || punct === ".") {
+    sentencePunct = "";
+  }
+
   const focusIdx = getOptimalFocusIndex(word);
   const pre = word.slice(0, focusIdx);
   const focusChar = word[focusIdx];
@@ -621,22 +647,24 @@ function displayWord(index) {
   rsvpDisplayEl.className = wordObj.isQuoted ? "quoted" : "";
 
   if (wordObj.isQuoted) {
+    // For quoted: punct at end of word (inside focus-point after post)
     rsvpDisplayEl.style.fontFamily = '"Atkinson Hyperlegible", sans-serif';
     rsvpDisplayEl.innerHTML = `
       <div class="rsvp-band highlight">
         <span class="quote-mark open-quote">“</span>
-        <div class="word-container ">
+        <div class="word-container">
           <div class="vertical-guide top"></div>
           <div class="focus-point">
             <span class="prefocus">${pre}</span>
             <span class="focus">${focusChar}</span>
-            <span class="postfocus">${post}</span>
+            <span class="postfocus">${post}${punctHtml}</span>
           </div>
           <div class="vertical-guide bottom"></div>
         </div>
         <span class="quote-mark close-quote">”</span>
       </div>`;
   } else {
+    // For non-quoted: punct where quotes would be (after word-container)
     rsvpDisplayEl.style.fontFamily = '"Atkinson Hyperlegible", sans-serif';
     rsvpDisplayEl.innerHTML = `
       <div class="rsvp-band">
@@ -649,6 +677,7 @@ function displayWord(index) {
           </div>
           <div class="vertical-guide bottom"></div>
         </div>
+        ${punctHtml}
       </div>`;
   }
 
