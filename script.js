@@ -68,11 +68,11 @@ document.addEventListener("DOMContentLoaded", () => {
   textInputEl = document.getElementById("text-input");
   startTextBtnEl = document.getElementById("start-text-btn");
   wpmDisplayMainEl = document.getElementById("wpm-display");
-  chapterEtaEl = document.getElementById("chapter-eta");
-  bookEtaEl = document.getElementById("book-eta");
+  combinedEtaEl = document.getElementById("combined-eta");
   chapterProgressEl = document.getElementById("chapter-progress");
   bookProgressEl = document.getElementById("book-progress");
   playBtnEl = document.getElementById("play-btn");
+
   pauseBtnEl = document.getElementById("pause-btn");
   resetBtnEl = document.getElementById("reset-btn");
   prev10BtnEl = document.getElementById("prev-10");
@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   if (wpmIncreaseBtn)
     wpmIncreaseBtn.addEventListener("click", () => {
-      wpm = Math.min(1000, wpm + 25);
+      wpm = Math.min(1500, wpm + 25);
       onWpmChange(wpm);
     });
   if (adaptiveToggle)
@@ -359,7 +359,7 @@ function calculateRsvpDelay(word, baseMsPerWord) {
   // 5. Hard Constraints
   // Floor at 100ms prevents "visual flicker" and retinal ghosting
   // Cap at 2.5x base keeps the "flow state" from breaking
-  const finalDelay = Math.max(100, Math.min(delay, baseMsPerWord * 2.5));
+  const finalDelay = Math.max(10, Math.min(delay, baseMsPerWord * 2.5));
 
   // Console log for debugging the rhythm
   console.log(
@@ -694,17 +694,14 @@ function updateProgress() {
 
 function updateEtaDisplay() {
   const msPerWord = 60000 / wpm;
-  if (chapterEtaEl && words.length) {
+  if (combinedEtaEl && words.length) {
     const chMins = Math.round(
       ((words.length - currentWordIndex) * msPerWord) / 60000,
     );
-    chapterEtaEl.textContent = `Ch: ${chMins}m`;
-  }
-  if (bookEtaEl && totalBookWords) {
-    const bookMins = Math.round(
-      ((totalBookWords - currentWordIndex) * msPerWord) / 60000,
-    );
-    bookEtaEl.textContent = `Book: ${bookMins}m`;
+    const bookMins = totalBookWords
+      ? Math.round(((totalBookWords - currentWordIndex) * msPerWord) / 60000)
+      : chMins;
+    combinedEtaEl.textContent = `Ch: ${chMins}m | Book: ${bookMins}m`;
   }
   if (wpmDisplayMainEl) wpmDisplayMainEl.textContent = `${wpm} WPM`;
 }
@@ -845,7 +842,7 @@ function onKeyDown(e) {
       scrubWords(10);
       break;
     case "ArrowUp":
-      wpm = Math.min(1000, wpm + 50);
+      wpm = Math.min(1500, wpm + 50);
       onWpmChange(wpm);
       break;
     case "ArrowDown":

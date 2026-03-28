@@ -224,13 +224,13 @@ width: 100%;
 }
 
 .vertical-guide.top {
-  top: 50px;
+  top: 60px;
   position: relative;
 }
 .vertical-guide.top::before {
      content: "";
     position: absolute;
-    top: -3px;
+    top: 20px;
     left: -25vw;
     right: -20px;
     height: 2px;
@@ -247,7 +247,7 @@ width: 100%;
 }
 
 .vertical-guide.bottom {
-  bottom: 50px;
+  bottom: 60px;
   height: 20px;
   box-shadow: 0 0 8px var(--border);
       position: absolute;
@@ -255,7 +255,7 @@ width: 100%;
 .vertical-guide.bottom::after {
   content: "";
   position: absolute;
-  bottom: -3px;
+  bottom: 20px;
     left: -25vw;
   right: -20px;
   height: 2px;
@@ -959,7 +959,9 @@ width: 100%;
     align-items: center;
     z-index: 150;
     box-shadow: var(--shadow);
-    padding: 1rem;
+    padding: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
     overflow: hidden;
     border-radius: var(--radius);
 }
@@ -1035,7 +1037,7 @@ width: 100%;
       display: flex;
     flex: 1;
     gap: 0.5rem;
-    padding: 1rem;
+    padding: 0.5rem;
     overflow-x: auto;
     overflow-y: hidden;
     justify-content: flex-start;
@@ -1060,7 +1062,7 @@ width: 100%;
 }
 
 .chapter-list li {
-     padding: 0.75rem 1rem;
+     padding: 0.25rem 0.5rem;
     background: #e2585f24;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--radius-small);
